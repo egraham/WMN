@@ -1,0 +1,5 @@
+Title: Exploring the Data: Who's Making News
+Author: Eric A. Graham
+License: GPL-3
+Tags: visualizations, machine learning, first
+Type: Shiny
