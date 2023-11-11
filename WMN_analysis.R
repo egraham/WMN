@@ -71,13 +71,13 @@ ui <- fluidPage(
                         column(4,
                                wellPanel(
                                  h4(HTML("<b>Exploring the Data:</b> Who's Making News<br /><span><font size=-0.5>for Sex Crimes Involving Children?</font></span>")),
-                                 h4(helpText(a("www.whoismakingnews.com", href='https://www.whoismakingnews.com/', target="_blank")
-                                 )
-                                 ),
+                                 h4(HTML("Data from: <a href='https://www.whoismakingnews.com/', target='_blank'>www.whoismakingnews.com</a>")),
                                  h4(htmlOutput("lastdate"))
+                                 #h5(HTML("<b>Note:</b> As of 10 AM 11/4/23, WMN LOST data availability functionality. They are busily fixing the issue and new data will be presented here when they resolve the issue."))
                                ),
                                  wellPanel(style = wellpanel_style, 
-                                           h4("Here you will find some methods of data exploration for the 'Who's Making News' data set, from the amazing work done by Kristen Browde."),
+                                           h4(HTML("Here you will find some methods of data exploration for the 'Who's Making News' data set, from the amazing work done by Kristen Browde.<br /><br />All code used here and additional data files (see individual tabs) are available here: <a href='https://github.com/egraham/WMN', target='_blank'>github.com/egraham/WMN</a>")),
+                                           #h4(HTML("Direct link to the Shinyapps hosting site: <a href='https://erksome.shinyapps.io/WMN_Analysis/', target='_blank'>erksome.shinyapps.io/WMN_Analysis</a>")),
                                            
                                  ),
                                wellPanel(
@@ -87,12 +87,12 @@ ui <- fluidPage(
                                  )
                                ),
                                  h5(style = detail_style_text, HTML("The motivation for this page is to create some interactive data exploration methods and alternative visualizations.  It also includes some simple supervised and unsupervised machine learning models. I thought it would be fun to also combine the data with other online sources.<br /><br />More thorough analyses of these data can be found elsewhere (for example, per capita analysis here: DataViz.fyi).")),
-                                 h5(style = detail_style_text, HTML("I also clean up the data for some of these analyses, rather than leaving it completelly 'as-is'.  For example, for the 'genderized' names, I remove unnamed values and I clean up some typos ('babsyitter' for babysitter') and such.<br /><br />Thus, the totals reported here may not be exactly the same as reported on the WMN website.")),
+                                 h5(style = detail_style_text, HTML("I also clean up the data for some of these analyses, rather than leaving it completelly 'as-is'.  For example, for the 'genderized' names, I remove unnamed values and I clean up some typos ('babsyitter' for babysitter') and such.<br /><br />Thus, the totals reported here may not be exactly the same as reported on the WMN website, but they are very close.")),
                                  h5(style = detail_style_text, HTML("This is a work in progress.  If you see any errors and care to let me know, drop me a line: 'egraham.cens' at gmail.  Thanks!"))
                                ),
                                column(8,
                                       plotOutput(
-                                        outputId = "weekbubble", width = "90%", height = 500,
+                                        outputId = "weekbubble", width = "100%", height = 600,
                                         hover = hoverOpts(
                                           id = "bubbleplot_hover",
                                           delay = 200,
@@ -127,8 +127,10 @@ ui <- fluidPage(
                                                   h4("Predicting trends or when the next crime will occur is always strange (betting on human behavior), but we can use some simple tools to guess at how things are going."),
                                                   
                                         ),
-                                        h5(style = detail_style_text, HTML("There are more sophisticated ways to model data, but here we start with a simple line drawn through the last month of data and extend it one day into the future (today).")),
-                                        h5(style = detail_style_text, HTML("Another way we can do it is to apply some time series forecast modeling of the time series (ETS, Exponential Smoothing) to predict future values."))
+                                        conditionalPanel(condition="input.modelselecter == 'linearmodel'",
+                                                         h5(style = detail_style_text, HTML("There are more sophisticated ways to model data, but here we start with a simple line drawn through the last month of data and extend it one day into the future (today)."))),
+                                        conditionalPanel(condition="input.modelselecter == 'daymodel'", 
+                                                         h5(style = detail_style_text, HTML("Another way we can do it is to apply some time series forecast modeling of the time series (ETS, Exponential Smoothing) to predict future values.")))
                                  ),
                                  column(8,
                                         conditionalPanel(condition="input.modelselecter == 'linearmodel'",
@@ -141,7 +143,7 @@ ui <- fluidPage(
                                                          plotOutput(
                                                            outputId = "ets", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations.<br /><br />Another way to do this is with 'Seasonal' component after decomposition and the last 'Trend' value (see next tab, 'About That Line', for more info on time series decomposition)."))
+                                                         h5(style = detail_style_text, HTML("Predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations.<br /><br />Another way to do this is with 'Seasonal' component after decomposition and the last 'Trend' value (see next tab, 'About That Line', for more info on time series decomposition).<br /><br />(no hover data on this plot)"))
                                         )
                                  )
                                )
@@ -516,7 +518,7 @@ server <- shinyServer(function(input,output, session)({
   lastdate <- file.info("wmn_data_previous.RDS")$mtime  
   lastdate <- format(as.Date(lastdate), "%b %d, %Y")
   output$lastdate <- renderText({
-    paste("Data are complete as of: ", lastdate, sep="")
+    paste("Complete as of: ", lastdate, sep="")
   })
   
   ##################### data processing ####################################
@@ -615,9 +617,9 @@ server <- shinyServer(function(input,output, session)({
   
   ######################## Last 7 days bubble plot ###############################
   
-  # get the last weed's data
+  # get the last 7 days of data (not necessarily from today)
   wmn_data_previous_week <- wmn_data_previous |> 
-    filter(Date >= now()-days(7)) |> 
+    filter(Date >= max(Date)-days(7)) |> 
     mutate(
       category_color = case_when(
         Category == "Teachers/Aides" ~ "#7A4419",
@@ -684,6 +686,7 @@ server <- shinyServer(function(input,output, session)({
     mutate(Category = str_replace(Category, "Priests/Brothers", "Priests\nBrothers")) |> 
     mutate(Category = str_replace(Category, "Family Friends/Neighbors", "Friends\nNeighbors")) |> 
     mutate(Category = str_replace(Category, "Family Members", "Family\nMembers")) |> 
+    mutate(Category = str_replace(Category, "Church Employees", "Church\nEmployees")) |> 
     filter(!is.na(big_category)) |> 
     group_by(big_category) |> 
     mutate(big_category_n = n())
@@ -732,13 +735,15 @@ server <- shinyServer(function(input,output, session)({
       # Make the bubbles
       geom_polygon(data = dat.gg, aes(x, y, group = id, fill=as.factor(id)), 
                    colour = "black", 
-                   fill = dat.gg$category_color) +
+                   fill = dat.gg$category_color,
+                   alpha=0.7) +
       
       # Add text in the center of each bubble + control its size
-      geom_text(data = weekdata_p, aes(x, y, size=value, label = group), color=weekdata_p$text_color) +
-      scale_size_continuous(range = c(3,6)) +
+      geom_text(data = weekdata_p, aes(x, y, size=value, label = group), color="black") + #, color=weekdata_p$text_color
+      geom_text(data = weekdata_p, aes(x, y, size=value + 0.07, label = group), color="black") +
+      scale_size_continuous(range = c(4,7)) +
       coord_equal()
-    
+
     # General theme:
     bubbleplot <- bubbleplot +
       theme_void() + 
@@ -814,7 +819,7 @@ server <- shinyServer(function(input,output, session)({
       
       # if mouse is on left of graph, put tool tips to right.  if on right put on left
       style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-                      "left:", left_css_px_bubble, "px; top:", top_css_px_bubble-500, "px;")
+                      "left:", left_css_px_bubble, "px; top:", top_css_px_bubble-700, "px;")
       
       groupval <- NULL
       for(i in 1:length(weekdata_p$radius)){
@@ -887,6 +892,7 @@ server <- shinyServer(function(input,output, session)({
   # last month of data for model
   eventsperday_m <- eventsperday |>
     filter(Date >= now()-days(30)) |> 
+    filter(Date < date(now())) |>  # remove today because we're predicting today
     select(date=Date, value=perday) |> 
     as_tsibble(index=date)
   
@@ -917,8 +923,13 @@ server <- shinyServer(function(input,output, session)({
   futuredata <- tibble(date=fc$date, crimes=fc$.mean)
   todaycrime <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$crimes
   todaydate <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$date
+  # no more data past 10 days into future
+  if(length(todaycrime) == 0){
+    todaycrime <- futuredata[futuredata$date == max(futuredata$date),]$crimes
+    todaydate <- futuredata[futuredata$date == max(futuredata$date),]$date
+  }
   
-  nextcrimetext_m <- paste("\nNumber of crimes predicted for today: ", round(futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$crimes, 0), sep="")
+  nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
   
   # get the last month's data, count, and make a linear regression
   sumduration = 30
@@ -935,8 +946,9 @@ server <- shinyServer(function(input,output, session)({
   cumsum_b <- cumsum30.lm$coefficients[1]
   cumsumlineartext <- "Predicted crimes based on linear regression use the last 30 days of data and the current date.<br /><br />The dark red dotted line represents the regression, with"
   cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), sep='')
+  cumsumlineartext <- paste(cumsumlineartext, "<br /><br />(no hover data on this plot)")
   
-  nextcrimetext <- paste("Number of crimes predicted for today: ",round(cumsum_m, 0), sep="")
+  nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
 
   output$ets <- renderPlot({
     
@@ -995,28 +1007,7 @@ server <- shinyServer(function(input,output, session)({
       })
         
     }
-    
-    # # turn interval of crimes into times for crimes starting at midnight
-    #   todaycrimestimes <- data.frame(todaymidnight)
-    #   for(i in 0:as.integer(24*60*60/secspercrime)){
-    #     todaymidnight <- todaymidnight + seconds(secspercrime)
-    #     todaycrimestimes <- rbind(todaycrimestimes, data.frame(todaymidnight))
-    #   }
-    #   nextcrime <- min(todaycrimestimes[todaycrimestimes[,] >= now(),1])
-    #   
-    #   # get rid of leading zero, since we have AM/PM
-    #   nextcrimetimetext <- format(nextcrime, "%I:%M %p")
-    #   if(substring(nextcrimetimetext, 1, 1) == "0"){
-    #     nextcrimetimetext <- substring(nextcrimetimetext, 2)
-    #   }
-    #   
-    # if(day(now()) == day(nextcrime)){
-    #     daytext = "today"
-    #   } else {
-    #     daytext = "tomorrow"
-    #   }
       
-    
     cumsumplot <- ggplot(eventsperday, aes(x=Date, y=cum_sum)) + 
       geom_line() +
       #stat_bin(aes(, geom="step") +
