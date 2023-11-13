@@ -72,7 +72,11 @@ wmn_names_genderized <- readRDS("wmn_names_genderized.RDS") |>
 # Download newest data set:
 #Old URL - wmn_data_current <- read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vRsWWugIo1pp0Xc1WmMmvawFzQslpUqlIMCjw3JhwOrW2sS6gOvXv3C_TV9eHAD46wjiaqzPNvLbRUT/pub?gid=1732993794&single=true&output=csv')
 #not direct - wmn_data_current <- read_csv('https://docs.google.com/spreadsheets/d/1t6I-j30Nf7pTwl2i1snMbFWcTbWkYMtnk192JL1Og9k/edit#gid=1882457294')
-wmn_data_current <- read_csv('News Coverage Database - TikTok Series data  - Main.csv')
+wmn_data_current <- read_csv('News Coverage Database - TikTok Series data  - Main.csv') |> 
+  filter(!Deleted) |>  # remove deleted names
+  filter(!is.na(Name))  # Remove rows that do not have a Name value (output can include lots of blank lines)
+summary(wmn_data_current)
+  
 wmn_data_current_temp <- wmn_data_current
 #wmn_data_current <- wmn_data_current_temp  # recover wihtout having to download again
 
@@ -90,7 +94,7 @@ wmn_data_current <- wmn_data_current |>
   mutate(Notes = as.character(Notes)) |>
   mutate(Sentence = as.character(Sentence)) |>  # mixed numbers and strings, predict makes it numeric
   mutate(Name = str_to_title(Name)) # put into upper-case, both names, all names
-#summary(wmn_data_current)
+summary(wmn_data_current)
 
 # Change "Cop" or "cop" into "Police", correct typos, fix inconsistent plurals
 wmn_data_current <- wmn_data_current |>
@@ -121,27 +125,27 @@ summary(wmn_data_current)
 # #   (to remove noise). Actual names like "La Luz" will also not result in usable data.
 
 wmn_data_current <- wmn_data_current |>
-  filter(!is.na(Name)  # Remove rows that do not have a Name value (output can include lots of blank lines)
-  ) |>
   mutate(  # now extract first names and put into column
     First_name = str_to_title(sapply(strsplit(Name, " "), `[`, 1)),
     .after = Name
   ) |>
-  filter(  # Remove 1- and 2-character names (to limit Genderize calls?)
-    nchar(First_name) >2
-  ) |>
+  #filter(nchar(First_name) >2) |>  # Remove 1- and 2-character names (to limit Genderize calls?)
   mutate(Date = mdy(Date)) |>  # change character string to actual dates
-  distinct(.keep_all = TRUE) |>  # remove redundant identical rows
-  # this will not remove redundant names when entries are different (for example, when
-  # updates to a case or other info is provided - we want to keep this info)
   arrange(Date, Name)  # sort by date then name
 summary(wmn_data_current)
 
-
+# remove *some* items that don't make sense for genderized names
+wmn_data_current_for_names <- wmn_data_current |> 
+  filter(nchar(First_name) >2) |>   # Remove 1- and 2-character names (to limit Genderize calls?)
+  distinct(.keep_all = TRUE)  # remove redundant identical rows
+  # this will NOT remove redundant names when entries are different (for example, when
+  # updates to a case or other info is provided - we want to keep this info)
+summary(wmn_data_current_for_names)
+  
 # Do a left-join, keeping all columns in wmn_data_current, adding previously 
 #   determined gender categories from wmn_names_genderized (Gender, Gender_probability, Gender_count),
 #   adding as NA to new entries (or changed)
-wmn_names_genderized <- left_join(wmn_data_current, wmn_names_genderized, 
+wmn_names_genderized <- left_join(wmn_data_current_for_names, wmn_names_genderized, 
                                   by = c("Date", "Name", "First_name", 
                                          "State", "Category", "Relation", 
                                          "Political", "Deleted", "Trans", 

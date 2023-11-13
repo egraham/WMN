@@ -119,7 +119,8 @@ ui <- fluidPage(
                                         wellPanel(
                                           radioButtons("modelselecter", "Pick the model used for prediction:",
                                                        c("Linear regression" = "linearmodel",
-                                                         "Day of the week (ETS)" = "daymodel"
+                                                         "Day of the week (ETS)" = "daymodel",
+                                                         "Time series decomposition" = "decompmodel"
                                                        ), 
                                                        selected = "linearmodel", inline = FALSE),
                                         ),
@@ -130,7 +131,9 @@ ui <- fluidPage(
                                         conditionalPanel(condition="input.modelselecter == 'linearmodel'",
                                                          h5(style = detail_style_text, HTML("There are more sophisticated ways to model data, but here we start with a simple line drawn through the last month of data and extend it one day into the future (today)."))),
                                         conditionalPanel(condition="input.modelselecter == 'daymodel'", 
-                                                         h5(style = detail_style_text, HTML("Another way we can do it is to apply some time series forecast modeling of the time series (ETS, Exponential Smoothing) to predict future values.")))
+                                                         h5(style = detail_style_text, HTML("Another way we can do it is to apply some time series forecast modeling of the time series (ETS, Exponential Smoothing) to predict future values."))),
+                                        conditionalPanel(condition="input.modelselecter == 'decompmodel'",
+                                                         h5(style = detail_style_text, HTML("And we can also do a time series decomposition (see next tab, 'About That Line', for more info on time series decomposition) and model the week days as regularly repeating.")))
                                  ),
                                  column(8,
                                         conditionalPanel(condition="input.modelselecter == 'linearmodel'",
@@ -143,7 +146,13 @@ ui <- fluidPage(
                                                          plotOutput(
                                                            outputId = "ets", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations.<br /><br />Another way to do this is with 'Seasonal' component after decomposition and the last 'Trend' value (see next tab, 'About That Line', for more info on time series decomposition).<br /><br />(no hover data on this plot)"))
+                                                         h5(style = detail_style_text, HTML("Predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations.<br /><br />(no hover data on this plot)"))
+                                        ),
+                                        conditionalPanel(condition="input.modelselecter == 'decompmodel'",
+                                                         plotOutput(
+                                                           outputId = "decomp", width = "90%", height = 500,
+                                                         ),
+                                                         h5(style = detail_style_text, HTML("Predicted crimes using time series decomposition, with a black line as the day of the week data and red is the prediction for today. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used.<br /><br />(no hover data on this plot)"))
                                         )
                                  )
                                )
@@ -695,14 +704,18 @@ server <- shinyServer(function(input,output, session)({
   
   output$weekbubble <- renderPlot({
     
+    # if include the "not listed
     if(length(str_subset(input$includebubble, "include_notlistedbubble")) > 0) {
       big_category_counts_summary <- big_category_counts_bubble |> 
         distinct(Category, .keep_all = TRUE)
+      # reduce size of text in plot
+      range_b <- c(3,6)
     } else {
       big_category_counts_summary <- big_category_counts_bubble |> 
         distinct(Category, .keep_all = TRUE)
       big_category_counts_summary <- big_category_counts_summary |> 
         filter(Category != "Not Listed")
+      range_b <- c(4,7)
     }
     
     # Create data, group by big categories, sort by size and alpha (in case of size ties)
@@ -729,6 +742,8 @@ server <- shinyServer(function(input,output, session)({
       mutate(category_color = weekdata_p$category_color[id]) |> 
       mutate(text_color = weekdata_p$text_color[id])
     
+    
+    
     # Make the plot
     bubbleplot <- ggplot() + 
       
@@ -741,7 +756,7 @@ server <- shinyServer(function(input,output, session)({
       # Add text in the center of each bubble + control its size
       geom_text(data = weekdata_p, aes(x, y, size=value, label = group), color="black") + #, color=weekdata_p$text_color
       geom_text(data = weekdata_p, aes(x, y, size=value + 0.07, label = group), color="black") +
-      scale_size_continuous(range = c(4,7)) +
+      scale_size_continuous(range = range_b) +
       coord_equal()
 
     # General theme:
@@ -876,7 +891,9 @@ server <- shinyServer(function(input,output, session)({
   
   ######################## About - cumulative sum of data ###############################
   
-  # fill in zeros for days with no crimes, create a df ready for time series
+  ##############
+  # Linear model - fill in zeros for days with no crimes, create a df ready for time series
+  ##############
   eventsperday <- wmn_data_previous |>
     group_by(Date) |> 
     summarize(perday = n()) |> 
@@ -885,30 +902,33 @@ server <- shinyServer(function(input,output, session)({
     mutate(cum_sum = cumsum(perday)) |> 
     arrange(Date)
   
-  # todaystring=paste(year(now()),"-",month(now()),"-",day(now())," ","00:00:00", sep="")
-  # todaymidnight <- strptime(todaystring, format = "%Y-%m-%d %H:%M:%S") #"POSIXlt" "POSIXt" class
-  # dow <- wday(now(), week_start=1)
+  # get the last month's data, count, and make a linear regression
+  sumduration = 30
+  numEventsperday_reg <- eventsperday |> 
+    filter(Date > max(Date) - duration(sumduration, 'days'))
   
-  # last month of data for model
+  #textlabel <- "Linear model"
+  cumsum30.lm = lm(cum_sum ~ Date, data=numEventsperday_reg)
+  # p-value
+  cumsum_p <- sorted_p(cumsum30.lm)
+  cumsum_ar <- summary(cumsum30.lm)$adj.r.squared
+  # slope, intercept
+  cumsum_m <- cumsum30.lm$coefficients[2]
+  cumsum_b <- cumsum30.lm$coefficients[1]
+  cumsumlineartext <- "Predicted crimes based on linear regression use the last 30 days of data and the current date.<br /><br />The dark red dotted line represents the regression, with"
+  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), sep='')
+  cumsumlineartext <- paste(cumsumlineartext, "<br /><br />(no hover data on this plot)")
+  
+  nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
+  
+  ############
+  # ETS model - last month of data
+  ###########
   eventsperday_m <- eventsperday |>
     filter(Date >= now()-days(30)) |> 
     filter(Date < date(now())) |>  # remove today because we're predicting today
     select(date=Date, value=perday) |> 
     as_tsibble(index=date)
-  
-  # # start the time series on Sunday so we don't have to calculate what day the model spits out
-  # # day of the week, starting on Monday (start=1), so Sunday = 7
-  # startindex <- 1
-  # for(i in 1:8){
-  #   if(wday(eventsperday_m$Date[i], week_start=1) == 7){
-  #     startindex <- i
-  #   }
-  # }
-  
-  # # get the data starting on sunday and then make as tsibble for model
-  # sundaydata <- eventsperday_m[startindex:length(eventsperday_m$perday),] |> 
-  #   select(date=Date, value=perday)
-  # sundaydata <- sundaydata
   
   # ETS: Exponential smoothing state space model
   fit <- eventsperday_m |> 
@@ -931,74 +951,50 @@ server <- shinyServer(function(input,output, session)({
   
   nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
   
-  # get the last month's data, count, and make a linear regression
-  sumduration = 30
-  numEventsperday_reg <- eventsperday |> 
-    filter(Date > max(Date) - duration(sumduration, 'days'))
+  ##############
+  # decomp model
+  ##############
+  eventsperday_d <- eventsperday |>
+    filter(Date >= now()-(days(30) + (8 - wday(now())))) # last 30 days + some for next filter
   
-  #textlabel <- "Linear model"
-  cumsum30.lm = lm(cum_sum ~ Date, data=numEventsperday_reg)
-  # p-value
-  cumsum_p <- sorted_p(cumsum30.lm)
-  cumsum_ar <- summary(cumsum30.lm)$adj.r.squared
-  # slope, intercept
-  cumsum_m <- cumsum30.lm$coefficients[2]
-  cumsum_b <- cumsum30.lm$coefficients[1]
-  cumsumlineartext <- "Predicted crimes based on linear regression use the last 30 days of data and the current date.<br /><br />The dark red dotted line represents the regression, with"
-  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), sep='')
-  cumsumlineartext <- paste(cumsumlineartext, "<br /><br />(no hover data on this plot)")
+  # start the time series on Sunday so we don't have to calculate what day the model spits out
+  # day of the week, starting on Sunday, day 7
+  startindex <- 1
+  for(i in 1:8){
+    if(wday(eventsperday_d$Date[i], week_start=1) == 7){
+      startindex <- i
+    }
+  }
   
-  nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
-
-  output$ets <- renderPlot({
-    
-    forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) + 
-      geom_line() +
-      geom_point() +
-      geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
-      geom_point(data = futuredata, aes(x=todaydate, y=todaycrime), col="red", shape = "diamond", size=5) +
-      theme_light() +
-      theme(
-        legend.position = "none",
-        panel.border = element_blank(),
-      ) 
-    
-    # add titles
-    forecastplot <- forecastplot + 
-      labs(
-        title = nextcrimetext_m,
-        subtitle = "ETS model",
-        x = "Date", 
-        y = "Sex crimes against children"
-      ) 
-    
-    # make theme prettier
-    forecastplot <- forecastplot + theme(
-      legend.position="none",  # remove legend because tooltips will suffice
-      panel.background = element_rect(fill = "white", colour = "white"),
-      panel.grid = element_line(colour = "grey92"),
-      panel.grid.minor = element_line(linewidth = rel(1)),
-      axis.text.x = element_text(size=16),
-      axis.text.y = element_text(size=16),
-      axis.title.y = element_text(size=17),
-      axis.title.x = element_text(size=17),
-      plot.title = element_text( # font size "large"
-        size = 20,
-        hjust = 0, vjust = 1,
-        margin = margin(b = 15/2)
-      ),
-      plot.subtitle = element_text( # font size "regular"
-        size = 15,
-        hjust = 0, vjust = 1,
-        margin = margin(b = 15/2)
-      )
-    )
-    
-    # show the figure
-    forecastplot
-    
-  })
+  tsdata = ts(eventsperday_d$perday[startindex:length(eventsperday_d$perday)], freq=7) ## “seasonal” window of 7 days
+  #stl_data <- stl(tsdata, s.window=30)
+  decomp_data <- decompose(tsdata, "multiplicative")
   
+  # get today's crime by multiplying today's seasonal position by the current trend
+  todaycrime_d <- decomp_data$seasonal[wday(now())] *
+    mean(decomp_data$trend[!is.na(decomp_data$trend)])
+    
+  # # get the seasonal * mean trend for plotting, removing NAs from trend data
+  # date_d <- eventsperday_d$Date[startindex:length(eventsperday_d$perday)]
+  # date_d <- date_d[!is.na(decomp_data$trend)] |> 
+  #   wday(label=TRUE)
+  # seasonal_trend_d <- decomp_data$seasonal[!is.na(decomp_data$trend)] * mean(decomp_data$trend[!is.na(decomp_data$trend)])
+  # decomp_df <- cbind.data.frame(date=seq(1:length(date_d)), value=seasonal_trend_d)
+  
+  # get the seasonal * mean trend for plotting, removing NAs from trend data
+  date_d <- wday(seq(1:7),label=TRUE)
+  seasonal_trend_d <- decomp_data$seasonal * mean(decomp_data$trend[!is.na(decomp_data$trend)])
+  decomp_df <- cbind.data.frame(date=seq(1:7), value=seasonal_trend_d[1:7])
+  
+  # find today for plot
+  decomp_df_today <- decomp_df |> 
+    filter(date==wday(now()))
+  
+  nextcrimetext_d <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime_d, 0), sep="")
+ 
+  ##################
+  # Linear model plot
+    
   output$plotcumsum <- renderPlot({
     
     if(input$modelselecter == "linearmodel"){
@@ -1007,7 +1003,7 @@ server <- shinyServer(function(input,output, session)({
       })
         
     }
-      
+    
     cumsumplot <- ggplot(eventsperday, aes(x=Date, y=cum_sum)) + 
       geom_line() +
       #stat_bin(aes(, geom="step") +
@@ -1066,16 +1062,111 @@ server <- shinyServer(function(input,output, session)({
     
   })
   
-  #################################### About That Line ###############################
+  ##################
+  # ETS model plot
   
-  # # fill in zeros for days with no crimes, create a df ready for time series
-  # eventsperday <- wmn_data_previous |>
-  #   group_by(Date) |> 
-  #   summarize(perday = n()) |> 
-  #   complete(Date = seq.Date(min(Date), max(Date), by = "days"), 
-  #            fill = list(perday = 0)) |> 
-  #   mutate(cum_sum = cumsum(perday)) |> 
-  #   arrange(Date)
+  output$ets <- renderPlot({
+    
+    forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) + 
+      geom_line() +
+      geom_point() +
+      geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
+      geom_point(data = futuredata, aes(x=todaydate, y=todaycrime), col="red", shape = "diamond", size=5) +
+      theme_light() +
+      theme(
+        legend.position = "none",
+        panel.border = element_blank(),
+      ) 
+    
+    # add titles
+    forecastplot <- forecastplot + 
+      labs(
+        title = nextcrimetext_m,
+        subtitle = "ETS model",
+        x = "Date", 
+        y = "Sex crimes against children"
+      ) 
+    
+    # make theme prettier
+    forecastplot <- forecastplot + theme(
+      legend.position="none",  # remove legend because tooltips will suffice
+      panel.background = element_rect(fill = "white", colour = "white"),
+      panel.grid = element_line(colour = "grey92"),
+      panel.grid.minor = element_line(linewidth = rel(1)),
+      axis.text.x = element_text(size=16),
+      axis.text.y = element_text(size=16),
+      axis.title.y = element_text(size=17),
+      axis.title.x = element_text(size=17),
+      plot.title = element_text( # font size "large"
+        size = 20,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      ),
+      plot.subtitle = element_text( # font size "regular"
+        size = 15,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      )
+    )
+    
+    # show the figure
+    forecastplot
+    
+  })
+  
+  ##################
+  # Decomp model plot
+  
+  output$decomp <- renderPlot({
+    
+    decompplot <- ggplot(decomp_df, aes(x=date, y=value)) + 
+      geom_line() +
+      geom_point(data = decomp_df_today, aes(x=date, y=value), col="red", shape = "diamond", size=5) +
+      theme_light() +
+      theme(
+        legend.position = "none",
+        panel.border = element_blank(),
+      ) 
+    
+    # add titles
+    decompplot <- decompplot + 
+      labs(
+        title = nextcrimetext_d,
+        subtitle = "Decomposition model",
+        x = "Date", 
+        y = "Time series of sex crimes against children"
+      ) +
+      scale_x_continuous(breaks=seq(1:length(date_d)), labels=as.character(date_d))
+    
+    # make theme prettier
+    decompplot <- decompplot + theme(
+      legend.position="none",  # remove legend because tooltips will suffice
+      panel.background = element_rect(fill = "white", colour = "white"),
+      panel.grid = element_line(colour = "grey92"),
+      panel.grid.minor = element_line(linewidth = rel(1)),
+      axis.text.x = element_text(size=16),
+      axis.text.y = element_text(size=16),
+      axis.title.y = element_text(size=17),
+      axis.title.x = element_text(size=17),
+      plot.title = element_text( # font size "large"
+        size = 20,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      ),
+      plot.subtitle = element_text( # font size "regular"
+        size = 15,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      )
+    )
+    
+    # show the figure
+    decompplot
+    
+  })
+  
+  
+  #################################### About That Line ###############################
   
   # get the brush info when needed
   ranges <- reactiveValues(x = NULL, y = NULL)
@@ -1214,19 +1305,6 @@ server <- shinyServer(function(input,output, session)({
     
     
     ###### time series analysis #####
-    
-    # start the time series on Sunday so we don't have to calculate what day the model spits out
-    # day of the week, starting on Monday (start=1), so Sunday = 7
-    startindex <- 1
-    for(i in 1:8){
-      if(wday(eventsperday$Date[i], week_start=1) == 7){
-        startindex <- i
-      }
-    }
-    
-    tsdata = ts(eventsperday$perday[startindex:length(eventsperday$perday)], freq=7) ## “seasonal” window of 7 days
-    #stl_data <- stl(tsdata, s.window=30)
-    decomp_data <- decompose(tsdata, "multiplicative")
     
     output$timeseries <- renderPlot({
       
