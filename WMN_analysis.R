@@ -119,8 +119,8 @@ ui <- fluidPage(
                                         wellPanel(
                                           radioButtons("modelselecter", "Pick the model used for prediction:",
                                                        c("Linear regression" = "linearmodel",
-                                                         "Day of the week (ETS)" = "daymodel",
-                                                         "Time series decomposition" = "decompmodel"
+                                                         "Time series decomposition" = "decompmodel",
+                                                         "Exponential smoothing (ETS)" = "daymodel"
                                                        ), 
                                                        selected = "linearmodel", inline = FALSE),
                                         ),
@@ -133,27 +133,74 @@ ui <- fluidPage(
                                         conditionalPanel(condition="input.modelselecter == 'daymodel'", 
                                                          h5(style = detail_style_text, HTML("Another way we can do it is to apply some time series forecast modeling of the time series (ETS, Exponential Smoothing) to predict future values."))),
                                         conditionalPanel(condition="input.modelselecter == 'decompmodel'",
-                                                         h5(style = detail_style_text, HTML("And we can also do a time series decomposition (see next tab, 'About That Line', for more info on time series decomposition) and model the week days as regularly repeating.")))
+                                                         h5(style = detail_style_text, HTML("And we can also do a time series decomposition (see next tab, 'About That Line', for more info on time series decomposition) and model the week days as regularly repeating."))),
+                                        plotOutput(outputId = "allthree", height = "250px", width = "auto")
                                  ),
                                  column(8,
                                         conditionalPanel(condition="input.modelselecter == 'linearmodel'",
                                                          plotOutput(
                                                            outputId = "plotcumsum", width = "90%", height = 500,
                                                          ),
-                                                         h5(htmlOutput("cumsumlineartext"), style=detail_style_text)
+                                                         h5(htmlOutput("cumsumlineartext"), style=detail_style_text),
+                                                         plotOutput(outputId = "linearerrorplot", 
+                                                                    width = "90%", 
+                                                                    height = 500,
+                                                                    # tooltips
+                                                                    hover = hoverOpts(
+                                                                      id = "errorlineplot_hover",
+                                                                      delay = 200,
+                                                                      delayType = "debounce",
+                                                                      clip = TRUE,
+                                                                      nullOutside = TRUE
+                                                                      )
+                                                                    ),
+                                                         div(style = "position:relative",
+                                                             uiOutput("errorlineplot_info", style = "pointer-events: none")
+                                                         )
                                         ),
                                         conditionalPanel(condition="input.modelselecter == 'daymodel'",
                                                          plotOutput(
                                                            outputId = "ets", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations.<br /><br />(no hover data on this plot)"))
-                                        ),
+                                                         h5(style = detail_style_text, HTML("Above, predicted crimes using ETS time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations. (no hover data on this plot)<br /><br />Below, the errors of the ETS prediction, per day (hover for actual and predicted values).")),
+                                                         plotOutput(outputId = "etserrorplot", 
+                                                                    width = "90%", 
+                                                                    height = 500,
+                                                                    # tooltips
+                                                                    hover = hoverOpts(
+                                                                      id = "erroretsplot_hover",
+                                                                      delay = 200,
+                                                                      delayType = "debounce",
+                                                                      clip = TRUE,
+                                                                      nullOutside = TRUE
+                                                                    )
+                                                         ),
+                                                         div(style = "position:relative",
+                                                             uiOutput("erroretsplot_info", style = "pointer-events: none")
+                                                         )
+                                                         ),
                                         conditionalPanel(condition="input.modelselecter == 'decompmodel'",
                                                          plotOutput(
                                                            outputId = "decomp", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Predicted crimes using time series decomposition, with a black line as the day of the week data and red is the prediction for today. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used.<br /><br />(no hover data on this plot)"))
-                                        )
+                                                         h5(style = detail_style_text, HTML("Above, predicted crimes using time series decomposition, with a black line as the day of the week data and red is the prediction for today. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used. (no hover data on this plot)<br /><br />Below, the errors of the decomposition prediction, per day (hover for actual and predicted values).")),
+                                                         plotOutput(outputId = "derrorplot",
+                                                                    width = "90%", 
+                                                                    height = 500,
+                                                                    # tooltips
+                                                                    hover = hoverOpts(
+                                                                      id = "errordplot_hover",
+                                                                      delay = 200,
+                                                                      delayType = "debounce",
+                                                                      clip = TRUE,
+                                                                      nullOutside = TRUE
+                                                                    )
+                                                         ),
+                                                         div(style = "position:relative",
+                                                             uiOutput("errordplot_info", style = "pointer-events: none")
+                                                         )
+                                        ),
+                                        
                                  )
                                )
                       ),
@@ -502,6 +549,7 @@ server <- shinyServer(function(input,output, session)({
   
   wmn_data_previous <- readRDS("wmn_data_previous.RDS")
   wmn_names_genderized <- readRDS("wmn_names_genderized.RDS")
+  all_errors_longer <- readRDS("all_errors_longer.RDS")
   
   # static files
   KFF_data <- readRDS("KFF_data.RDS")
@@ -850,6 +898,9 @@ server <- shinyServer(function(input,output, session)({
           ungroup() |> 
           select(Relation) |> 
           distinct()
+        
+        # remove entries with numbers, gets weird.
+        hovertext_bubble <- hovertext_bubble[!str_detect(hovertext_bubble$Relation, '[0-9]'),] 
 
         hovertext_str <- NULL
         if(dim(hovertext_bubble)[1] == 1){
@@ -891,9 +942,7 @@ server <- shinyServer(function(input,output, session)({
   
   ######################## About - cumulative sum of data ###############################
   
-  ##############
-  # Linear model - fill in zeros for days with no crimes, create a df ready for time series
-  ##############
+  # fill in zeros for days with no crimes, create a df ready for time series
   eventsperday <- wmn_data_previous |>
     group_by(Date) |> 
     summarize(perday = n()) |> 
@@ -901,6 +950,10 @@ server <- shinyServer(function(input,output, session)({
              fill = list(perday = 0)) |> 
     mutate(cum_sum = cumsum(perday)) |> 
     arrange(Date)
+  
+  ##############
+  # Linear model
+  ##############
   
   # get the last month's data, count, and make a linear regression
   sumduration = 30
@@ -915,11 +968,28 @@ server <- shinyServer(function(input,output, session)({
   # slope, intercept
   cumsum_m <- cumsum30.lm$coefficients[2]
   cumsum_b <- cumsum30.lm$coefficients[1]
-  cumsumlineartext <- "Predicted crimes based on linear regression use the last 30 days of data and the current date.<br /><br />The dark red dotted line represents the regression, with"
-  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), sep='')
-  cumsumlineartext <- paste(cumsumlineartext, "<br /><br />(no hover data on this plot)")
+  cumsumlineartext <- "Above, predicted crimes based on linear regression use the last 30 days of data and the current date. The dark red dotted line represents the regression, with"
+  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), " (no hover data on this plot)", sep='')
+  cumsumlineartext <- paste(cumsumlineartext, "<br /><br />Below, the errors of the linear prediction, per day (hover for actual and predicted values).")
   
   nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
+  
+  # get limits for error line plots
+  ylim_low <- 999
+  ylim_high <- -999
+  
+  # get errors for line plot
+  linear_error <- all_errors_longer |> 
+    filter(model == "lin_diffcrimes")
+  
+  linear_over_predict <- linear_error |> 
+    filter(value > 0)
+  if(max(linear_over_predict$value) > ylim_high){ylim_high <- max(linear_over_predict$value)}
+  linear_under_predict <- linear_error |> 
+    filter(value < 0)
+  if(min(linear_under_predict$value) < ylim_low){ylim_low <- min(linear_under_predict$value)}
+  linear_well_predict <- linear_error |> 
+    filter(value == 0)
   
   ############
   # ETS model - last month of data
@@ -950,6 +1020,18 @@ server <- shinyServer(function(input,output, session)({
   }
   
   nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
+  
+  # get errors for line plot
+  ets_error <- all_errors_longer |> 
+    filter(model == "ets_diffcrimes")
+  ets_over_predict <- ets_error |> 
+    filter(value > 0)
+  if(max(ets_over_predict$value) > ylim_high){ylim_high <- max(ets_over_predict$value)}
+  ets_under_predict <- ets_error |> 
+    filter(value < 0)
+  if(min(ets_under_predict$value) < ylim_low){ylim_low <- min(ets_under_predict$value)}
+  ets_well_predict <- ets_error |> 
+    filter(value == 0)
   
   ##############
   # decomp model
@@ -991,6 +1073,38 @@ server <- shinyServer(function(input,output, session)({
     filter(date==wday(now()))
   
   nextcrimetext_d <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime_d, 0), sep="")
+  
+  # get errors for line plot
+  d_error <- all_errors_longer |> 
+    filter(model == "d_diffcrimes")
+  d_over_predict <- d_error |> 
+    filter(value > 0)
+  if(max(d_over_predict$value) > ylim_high){ylim_high <- max(d_over_predict$value)}
+  d_under_predict <- d_error |> 
+    filter(value < 0)
+  if(min(d_under_predict$value) < ylim_low){ylim_low <- min(d_under_predict$value)}
+  d_well_predict <- d_error |> 
+    filter(value == 0)
+  
+  # for ets line plot
+  ets_error <- all_errors_longer |> 
+    filter(model == "ets_diffcrimes")
+  ets_over_predict <- ets_error |> 
+    filter(value > 0)
+  ets_under_predict <- ets_error |> 
+    filter(value < 0)
+  ets_well_predict <- ets_error |> 
+    filter(value == 0)
+  
+  # for decomp plotting
+  d_error <- all_errors_longer |> 
+    filter(model == "d_diffcrimes")
+  d_over_predict <- d_error |> 
+    filter(value > 0)
+  d_under_predict <- d_error |> 
+    filter(value < 0)
+  d_well_predict <- d_error |> 
+    filter(value == 0)
  
   ##################
   # Linear model plot
@@ -1012,7 +1126,7 @@ server <- shinyServer(function(input,output, session)({
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
+      )
     
     # construct the linear regression
     if(input$modelselecter == "linearmodel"){
@@ -1062,6 +1176,104 @@ server <- shinyServer(function(input,output, session)({
     
   })
   
+  # line error plot
+  output$linearerrorplot <- renderPlot({
+    
+    lin_err_lineplot <- ggplot(linear_error, aes(x = date, y = value)) + 
+      geom_line() +
+      geom_point(data=linear_over_predict, aes(x = date, y = value), col="red") +
+      geom_point(data=linear_under_predict, aes(x = date, y = value), col="blue") +
+      geom_point(data=linear_well_predict, aes(x = date, y = value), col="black") +
+      geom_hline(yintercept = 0) +
+      ylim(ylim_low, ylim_high) +
+      theme_light() +
+      theme(
+        legend.position = "none",
+        panel.border = element_blank(),
+      ) 
+    
+    # add titles
+    lin_err_lineplot <- lin_err_lineplot + 
+      labs(
+        title = "Errors of Linear Model Estimates",
+        #subtitle = "Error per date",
+        y = "Predicted minus Actual", 
+        x = "Date"
+      ) 
+    
+    # make theme prettier
+    lin_err_lineplot <- lin_err_lineplot + theme(
+      legend.position="none",  # remove legend because tooltips will suffice
+      panel.background = element_rect(fill = "white", colour = "white"),
+      panel.grid = element_line(colour = "grey92"),
+      panel.grid.minor = element_line(linewidth = rel(1)),
+      axis.text.x = element_text(size=16),
+      axis.text.y = element_text(size=16),
+      axis.title.y = element_text(size=17),
+      axis.title.x = element_text(size=17),
+      plot.title = element_text( # font size "large"
+        size = 20,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      ),
+      plot.subtitle = element_text( # font size "regular"
+        size = 15,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      )
+    )
+    
+    # show the figure
+    lin_err_lineplot
+    
+  })
+  
+  ########### tooltips for linear model lineplot ##########
+  
+  output$errorlineplot_info <- renderUI({
+    
+    # capture location of mouse hovering after it pauses
+    hover <- input$errorlineplot_hover
+    
+    if(!is.null(hover)){ # mouse is in bounds
+      left_px <- hover$x  # for chart coordinates
+      linear_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      top_px <- hover$y  
+      
+      left_css_px <- hover$coords_css$x  # for position of tooltip
+      top_css_px <- hover$coords_css$y
+      
+      # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      # crimes_on_date <-  wmn_data_previous |> 
+      #   filter(Date == wmn_data_previous_x) |> 
+      #   select(Date, Name, State)
+      
+      middate_linerror <- (max(linear_error$date)-min(linear_error$date))/2 + min(linear_error$date)
+      
+      # if mouse is on left of graph, put tool tips to right.  if on right put on left
+      if(linear_error_x < middate_linerror){
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px, "px; top:", top_css_px-500, "px;")
+      } else if(linear_error_x >= middate_linerror) {
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
+      }
+      
+      # construct names hover info
+      linearerror_text <- paste("<b>",linear_error_x,"</b><br />",
+                               "Actual crimes: ", linear_error$actual[linear_error$date == linear_error_x],"<br />",
+                               "Predicted: ",(linear_error$actual[linear_error$date == linear_error_x] + linear_error$value[linear_error$date == linear_error_x]), sep="")
+
+      #crimes_on_date_text
+      
+      wellPanel(
+        style = style,
+        p(HTML(linearerror_text))
+      )
+    }
+    
+  })
+  
   ##################
   # ETS model plot
   
@@ -1076,7 +1288,8 @@ server <- shinyServer(function(input,output, session)({
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
+      ) +
+      ylim(0, NA)
     
     # add titles
     forecastplot <- forecastplot + 
@@ -1114,6 +1327,103 @@ server <- shinyServer(function(input,output, session)({
     
   })
   
+  ## ets error plot
+  output$etserrorplot <- renderPlot({
+    
+  ets_err_lineplot <- ggplot(ets_error, aes(x = date, y = value)) + 
+    geom_line() +
+    geom_point(data=ets_over_predict, aes(x = date, y = value), col="red") +
+    geom_point(data=ets_under_predict, aes(x = date, y = value), col="blue") +
+    geom_point(data=ets_well_predict, aes(x = date, y = value), col="black") +
+    geom_hline(yintercept = 0) +
+    ylim(ylim_low, ylim_high) +
+    theme_light() +
+    theme(
+      legend.position = "none",
+      panel.border = element_blank(),
+    ) 
+  
+  # add titles
+  ets_err_lineplot <- ets_err_lineplot + 
+    labs(
+      title = "Errors of ETS Model Estimates",
+      y = "Predicted minus Actual", 
+      x = "Date"
+    )
+  
+  # make theme prettier
+  ets_err_lineplot <- ets_err_lineplot + theme(
+    legend.position="none",  # remove legend because tooltips will suffice
+    panel.background = element_rect(fill = "white", colour = "white"),
+    panel.grid = element_line(colour = "grey92"),
+    panel.grid.minor = element_line(linewidth = rel(1)),
+    axis.text.x = element_text(size=16),
+    axis.text.y = element_text(size=16),
+    axis.title.y = element_text(size=17),
+    axis.title.x = element_text(size=17),
+    plot.title = element_text( # font size "large"
+      size = 20,
+      hjust = 0, vjust = 1,
+      margin = margin(b = 15/2)
+    ),
+    plot.subtitle = element_text( # font size "regular"
+      size = 15,
+      hjust = 0, vjust = 1,
+      margin = margin(b = 15/2)
+    )
+  )
+  
+  # show the figure
+  ets_err_lineplot
+  
+  })
+  
+  ########### tooltips for ets model lineplot ##########
+  
+  output$erroretsplot_info <- renderUI({
+    
+    # capture location of mouse hovering after it pauses
+    hover <- input$erroretsplot_hover
+    
+    if(!is.null(hover)){ # mouse is in bounds
+      left_px <- hover$x  # for chart coordinates
+      ets_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      top_px <- hover$y  
+      
+      left_css_px <- hover$coords_css$x  # for position of tooltip
+      top_css_px <- hover$coords_css$y
+      
+      # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      # crimes_on_date <-  wmn_data_previous |> 
+      #   filter(Date == wmn_data_previous_x) |> 
+      #   select(Date, Name, State)
+      
+      middate_etserror <- (max(ets_error$date)-min(ets_error$date))/2 + min(ets_error$date)
+      
+      # if mouse is on left of graph, put tool tips to right.  if on right put on left
+      if(ets_error_x < middate_etserror){
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px, "px; top:", top_css_px-500, "px;")
+      } else if(ets_error_x >= middate_etserror) {
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
+      }
+      
+      # construct names hover info
+      etserror_text <- paste("<b>",ets_error_x,"</b><br />",
+                                "Actual crimes: ", ets_error$actual[ets_error$date == ets_error_x],"<br />",
+                                "Predicted: ",(ets_error$actual[ets_error$date == ets_error_x] + ets_error$value[ets_error$date == ets_error_x]), sep="")
+      
+      #crimes_on_date_text
+      
+      wellPanel(
+        style = style,
+        p(HTML(etserror_text))
+      )
+    }
+    
+  })
+  
   ##################
   # Decomp model plot
   
@@ -1126,7 +1436,8 @@ server <- shinyServer(function(input,output, session)({
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
+      ) +
+      ylim(0, NA)
     
     # add titles
     decompplot <- decompplot + 
@@ -1162,6 +1473,164 @@ server <- shinyServer(function(input,output, session)({
     
     # show the figure
     decompplot
+    
+  })
+  
+  # for plotting d error line plot
+  output$derrorplot <- renderPlot({
+  
+  d_err_lineplot <- ggplot(d_error, aes(x = date, y = value)) + 
+    geom_line() +
+    geom_point(data=d_over_predict, aes(x = date, y = value), col="red") +
+    geom_point(data=d_under_predict, aes(x = date, y = value), col="blue") +
+    geom_point(data=d_well_predict, aes(x = date, y = value), col="black") +
+    geom_hline(yintercept = 0) +
+    ylim(ylim_low, ylim_high) +
+    theme_light() +
+    theme(
+      legend.position = "none",
+      panel.border = element_blank(),
+    ) 
+  
+  # add titles
+  d_err_lineplot <- d_err_lineplot + 
+    labs(
+      title = "Errors of Decomposition Model Estimates",
+      y = "Predicted minus Actual", 
+      x = "Date"
+    )
+  
+  # make theme prettier
+  d_err_lineplot <- d_err_lineplot + theme(
+    legend.position="none",  # remove legend because tooltips will suffice
+    panel.background = element_rect(fill = "white", colour = "white"),
+    panel.grid = element_line(colour = "grey92"),
+    panel.grid.minor = element_line(linewidth = rel(1)),
+    axis.text.x = element_text(size=16),
+    axis.text.y = element_text(size=16),
+    axis.title.y = element_text(size=17),
+    axis.title.x = element_text(size=17),
+    plot.title = element_text( # font size "large"
+      size = 20,
+      hjust = 0, vjust = 1,
+      margin = margin(b = 15/2)
+    ),
+    plot.subtitle = element_text( # font size "regular"
+      size = 15,
+      hjust = 0, vjust = 1,
+      margin = margin(b = 15/2)
+    )
+  )
+  
+  # show the figure
+  d_err_lineplot
+  })
+  
+  ########### tooltips for ets model lineplot ##########
+  
+  output$errordplot_info <- renderUI({
+    
+    # capture location of mouse hovering after it pauses
+    hover <- input$errordplot_hover
+    
+    if(!is.null(hover)){ # mouse is in bounds
+      left_px <- hover$x  # for chart coordinates
+      d_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      top_px <- hover$y  
+      
+      left_css_px <- hover$coords_css$x  # for position of tooltip
+      top_css_px <- hover$coords_css$y
+      
+      # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
+      # crimes_on_date <-  wmn_data_previous |> 
+      #   filter(Date == wmn_data_previous_x) |> 
+      #   select(Date, Name, State)
+      
+      middate_derror <- (max(d_error$date)-min(d_error$date))/2 + min(d_error$date)
+      
+      # if mouse is on left of graph, put tool tips to right.  if on right put on left
+      if(d_error_x < middate_derror){
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px, "px; top:", top_css_px-500, "px;")
+      } else if(d_error_x >= middate_derror) {
+        style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                        "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
+      }
+      
+      # construct names hover info
+      derror_text <- paste("<b>",d_error_x,"</b><br />",
+                             "Actual crimes: ", d_error$actual[d_error$date == d_error_x],"<br />",
+                             "Predicted: ",(d_error$actual[d_error$date == d_error_x] + d_error$value[d_error$date == d_error_x]), sep="")
+      
+      #crimes_on_date_text
+      
+      wellPanel(
+        style = style,
+        p(HTML(derror_text))
+      )
+    }
+    
+  })
+  
+  
+  ##### all three errors plot #####
+  
+  output$allthree <- renderPlot({
+    
+    allthree_plot <- ggplot(all_errors_longer, aes(x=model, y=value)) + 
+      geom_boxplot()+
+      theme_light() +
+      theme(
+        legend.position = "none",
+        panel.border = element_blank(),
+      ) 
+    
+    allthree_plot <- allthree_plot +
+      scale_x_discrete(drop=FALSE, na.translate = FALSE,
+                       breaks = c(
+                         "lin_diffcrimes",
+                         "d_diffcrimes",
+                         "ets_diffcrimes"
+                       ),
+                       labels = c(
+                         "Linear",
+                         "Decomposition",
+                         "ETS"
+                       )
+      )
+    
+    # add titles
+    allthree_plot <- allthree_plot + 
+      labs(
+        title = "Errors of Model Estimates",
+        y = "Predicted minus Actual", 
+        x = "Models"
+      ) 
+    
+    # make theme prettier
+    allthree_plot <- allthree_plot + theme(
+      legend.position="none",  # remove legend because tooltips will suffice
+      panel.background = element_rect(fill = "white", colour = "white"),
+      panel.grid = element_line(colour = "grey92"),
+      panel.grid.minor = element_line(linewidth = rel(1)),
+      axis.text.x = element_text(size=16),
+      axis.text.y = element_text(size=16),
+      axis.title.y = element_text(size=17),
+      axis.title.x = element_text(size=17),
+      plot.title = element_text( # font size "large"
+        size = 20,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      ),
+      plot.subtitle = element_text( # font size "regular"
+        size = 15,
+        hjust = 0, vjust = 1,
+        margin = margin(b = 15/2)
+      )
+    )
+    
+    # show the figure
+    allthree_plot
     
   })
   
@@ -1242,6 +1711,7 @@ server <- shinyServer(function(input,output, session)({
     #### tooltips for line plot, just give names ####
     
     middate <- (max(wmn_data_previous$Date) - min(wmn_data_previous$Date))/2+min(wmn_data_previous$Date)
+    
     output$lineplot_info <- renderUI({
       
       # capture location of mouse hovering after it pauses
