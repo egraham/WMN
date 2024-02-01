@@ -51,11 +51,11 @@ css <- "
 ui <- fluidPage(
   # HTML('<link rel="icon", href="favicon.png", type="image/png">'
   # ),
-  
+
   list(
     tags$head(
       tags$style(
-        HTML(" 
+        HTML("
         .navbar-default .navbar-brand {color: #FFFFDD;}
         .navbar-default .navbar-brand {color: #FFFFDD;}
         .navbar-default .navbar-nav > li > a:hover {color: #FFFFDD;text-decoration:underline;}
@@ -63,10 +63,10 @@ ui <- fluidPage(
       ),
     )
   ),
-  
-  navbarPage(title = "Exploring the Data: Who's Making News", 
+
+  navbarPage(title = "Exploring the Data: Who's Making News",
              inverse = TRUE,
-             
+
              tabPanel("The Last 7 days",
                       fluidRow(
                         column(4,
@@ -75,15 +75,15 @@ ui <- fluidPage(
                                  h4(HTML("Methods of data exploration for the 'Who's Making News' data set, from the amazing work done by Kristen Browde.")),
                                  h4(HTML("Data from: <a href='https://www.whoismakingnews.com/', target='_blank'>www.whoismakingnews.com</a>")),
                                  h4(htmlOutput("lastdate")),
-                                 checkboxGroupInput("includebubble", "Include in the plot:", 
+                                 checkboxGroupInput("includebubble", "Include in the plot:",
                                                     choiceNames = list("'Not Listed'"),
                                                     choiceValues =list("include_notlistedbubble")
                                  )
                                ),
-                                 # wellPanel(style = wellpanel_style, 
+                                 # wellPanel(style = wellpanel_style,
                                  #           h4(HTML("Here you will find some methods of data exploration for the 'Who's Making News' data set, from the amazing work done by Kristen Browde.")),
                                  #           #h4(HTML("Direct link to the Shinyapps hosting site: <a href='https://erksome.shinyapps.io/WMN_Analysis/', target='_blank'>erksome.shinyapps.io/WMN_Analysis</a>")),
-                                 #           
+                                 #
                                  # ),
                                wellPanel(style = wellpanel_style, h5(HTML("The motivation for this page is to create some interactive data exploration methods and alternative visualizations.  It also includes some simple supervised and unsupervised machine learning models. I thought it would be fun to also combine the data with other online sources.<br /><br />More thorough analyses of these data can be found elsewhere (for example, per capita analysis here: DataViz.fyi).<br /><br />I also clean up the data for some of these analyses, rather than leaving it completelly 'as-is' (please see the code source). Because this page is based on constantly updating data, and the source is maintained externally (formatting changes!), updates to this analysis are not automatic, but are done manually every few days.<br /><br />Thus, the totals reported on some tabs may not be exactly the same as reported on the WMN website.<br /><br />All code used here and additional data files (see individual tabs) are available here: <a href='https://github.com/egraham/WMN', target='_blank'>github.com/egraham/WMN</a>"))),
                                wellPanel(style = wellpanel_style, h5(HTML("Check out my other Shiny data project: <a href='https://erksome.shinyapps.io/Fourier_and_Soil_Temps/', target='_blank'>Using Fourier Transform to Model Soil Temperatures</a>.<br /><br />Or, drop me a line: 'egraham.cens' at gmail!")))
@@ -109,7 +109,7 @@ ui <- fluidPage(
                                )
                         )
                       ),
-                      
+
                       ################################################
                       tabPanel("Predicting Today",
                                fluidRow(
@@ -119,12 +119,12 @@ ui <- fluidPage(
                                                        c("Linear regression" = "linearmodel",
                                                          "Time series decomposition" = "decompmodel",
                                                          "Exponential smoothing (ETS)" = "daymodel"
-                                                       ), 
+                                                       ),
                                                        selected = "linearmodel", inline = FALSE),
                                         ),
-                                        wellPanel(style = wellpanel_style, 
+                                        wellPanel(style = wellpanel_style,
                                                   h4("Predicting trends or when the next crime will occur is always strange (betting on human behavior), but we can use some simple tools to guess at how things are going."),
-                                                  
+
                                         ),
                                         wellPanel(style = wellpanel_style,h5(HTML("Below are standard boxplots (median is the line, box extends to inter-quartile range, outliers as points) of the cumulative errors associated with the three models used to predict upcoming crime rates (since July 15, 2023, when sampling changed)."))),
                                         plotOutput(outputId = "allthree", height = "250px", width = "auto")
@@ -135,8 +135,8 @@ ui <- fluidPage(
                                                            outputId = "plotcumsum", width = "90%", height = 500,
                                                          ),
                                                          h5(htmlOutput("cumsumlineartext"), style=detail_style_text),
-                                                         plotOutput(outputId = "linearerrorplot", 
-                                                                    width = "90%", 
+                                                         plotOutput(outputId = "linearerrorplot",
+                                                                    width = "90%",
                                                                     height = 500,
                                                                     # tooltips
                                                                     hover = hoverOpts(
@@ -156,8 +156,8 @@ ui <- fluidPage(
                                                            outputId = "ets", width = "90%", height = 500,
                                                          ),
                                                          h5(style = detail_style_text, HTML("Above, predicted crimes using ETS (exponential smoothing) time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations. (no hover data on this plot)<br /><br />Below, the errors of the ETS prediction, per day (hover for actual and predicted values).")),
-                                                         plotOutput(outputId = "etserrorplot", 
-                                                                    width = "90%", 
+                                                         plotOutput(outputId = "etserrorplot",
+                                                                    width = "90%",
                                                                     height = 500,
                                                                     # tooltips
                                                                     hover = hoverOpts(
@@ -178,7 +178,7 @@ ui <- fluidPage(
                                                          ),
                                                          h5(style = detail_style_text, HTML("Above, predicted crimes using time series decomposition, with a black line as the day of the week data and red is the prediction for today. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used. (no hover data on this plot)<br /><br />Below, the errors of the decomposition prediction, per day (hover for actual and predicted values).")),
                                                          plotOutput(outputId = "derrorplot",
-                                                                    width = "90%", 
+                                                                    width = "90%",
                                                                     height = 500,
                                                                     # tooltips
                                                                     hover = hoverOpts(
@@ -193,7 +193,7 @@ ui <- fluidPage(
                                                              uiOutput("errordplot_info", style = "pointer-events: none")
                                                          )
                                         ),
-                                        
+
                                  )
                                )
                       ),
@@ -205,10 +205,10 @@ ui <- fluidPage(
                                           radioButtons("dataselecter", "Pick your output:",
                                                        c("Raw data" = "rawdata",
                                                          "Time series" = "timeseries"
-                                                       ), 
+                                                       ),
                                                        selected = "rawdata", inline = FALSE)
                                         ),
-                                        wellPanel(style = wellpanel_style, 
+                                        wellPanel(style = wellpanel_style,
                                                   h4("The data collected for 'Who's Making News' has some interesting daily and longer-term trends.")
                                         ),
                                         wellPanel(style = wellpanel_style, h5(HTML("There is an obvious cycle to the data, even as the maxiumum (and minimum) number of events per week has changed, with fewer crimes <b>reported</b> on Sundays.<br /><br />Are criminals taking the day off?"))
@@ -217,14 +217,14 @@ ui <- fluidPage(
                                  column(8,
                                         conditionalPanel(condition="input.dataselecter == 'rawdata'",
                                                          plotOutput(
-                                                           outputId = "linedataraw", 
-                                                           width = "90%", 
+                                                           outputId = "linedataraw",
+                                                           width = "90%",
                                                            height = 500,
                                                            dblclick = "plot_dblclick",
                                                            brush = brushOpts(
-                                                             id = "zoom_brush", 
-                                                             resetOnNew = TRUE, 
-                                                             delay=500, 
+                                                             id = "zoom_brush",
+                                                             resetOnNew = TRUE,
+                                                             delay=500,
                                                              delayType = "debounce"),
                                                            # tooltips
                                                            hover = hoverOpts(
@@ -250,18 +250,18 @@ ui <- fluidPage(
                                  )
                                )
                       ),
-                      
+
                       ################################################
                       tabPanel("Groups of People",
                                fluidRow(
-                                 column(4, 
+                                 column(4,
                                         wellPanel(
-                                          checkboxGroupInput("include", "Include in the plot:", 
+                                          checkboxGroupInput("include", "Include in the plot:",
                                                              choiceNames = list("'Not Listed'", "Trans people","Drag Queens"),
                                                              choiceValues =list("include_notlisted", "include_trans", "include_dragqueen"),
                                           )
                                         ),
-                                        wellPanel(style = wellpanel_style, 
+                                        wellPanel(style = wellpanel_style,
                                                   h4("This is the standard way to show off the groups data.")
                                         ),
                                         wellPanel(style = wellpanel_style, h5("People who are trans are highlighted in the categories where they are included, not counted separately from their group."))
@@ -285,12 +285,12 @@ ui <- fluidPage(
                                  )
                                )
                       ),
-                      
+
                       ################################################
                       tabPanel("Names and Genders",
                                fluidRow(
                                  column(4,
-                                        wellPanel(checkboxGroupInput("gender", "First names of those who have committed crimes against children:", 
+                                        wellPanel(checkboxGroupInput("gender", "First names of those who have committed crimes against children:",
                                                                      choiceNames = list("Typically Female names", "Typically Male names", "Uncommon names"),
                                                                      choiceValues = list("gender_female", "gender_male", "gender_atypical"),
                                                                      selected = "gender_male"
@@ -298,7 +298,7 @@ ui <- fluidPage(
                                         radioButtons("genderselecter", "Pick your output:",
                                                      c("Word cloud" = "word_cloud",
                                                        "Pie chart" = "piegender",
-                                                       "Data table" = "data_table"), 
+                                                       "Data table" = "data_table"),
                                                      selected = "word_cloud", inline = TRUE)
                                         ),
                                         conditionalPanel(condition="input.genderselecter == 'word_cloud'",
@@ -318,8 +318,8 @@ ui <- fluidPage(
                                                                    h4(HTML("Pie charts aren't much better than word clouds, but they can indicate some obvious trends.<br /><br />Data from 'https://genderize.io' are included."))
                                                          )
                                         ),
-                                        
-                                        conditionalPanel(condition="input.genderselecter == 'data_table'", 
+
+                                        conditionalPanel(condition="input.genderselecter == 'data_table'",
                                                          wellPanel(style = wellpanel_style,
                                                                    h4(HTML("Sort by 'First Name' to see how common a name is in the WMN crime set (versus sort by how common the name is in the US - they are not the same! - data from 'https://genderize.io'.)<br /><br />... Or search for your own first name in the list!")
                                                                    )
@@ -328,7 +328,7 @@ ui <- fluidPage(
                                                          )
                                         )
                                  ),
-                                 column(8, 
+                                 column(8,
                                         conditionalPanel(condition="input.genderselecter == 'word_cloud'",
                                                          wordcloud2Output(
                                                            outputId = "wordcloud"
@@ -380,7 +380,7 @@ ui <- fluidPage(
                                  )
                                )
                       ),
-                      
+
                       ################################################
                       tabPanel("States of People",
                                fluidRow(
@@ -406,8 +406,9 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition = "input.states != 'by_crimes'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Examine the figures below to determine if assumptions have been violated. (for example, choose 'Political Party')<br /><br />Data from 'www.kff.org' included."))
+                                                                   h4(HTML("Examine the figures below to determine if assumptions have been violated. (for example, choose 'Political Party'), or see below for the Shapiro-Wilk normality test.<br /><br />Data from 'www.kff.org' included."))
                                                          ),
+                                                         h4(htmlOutput("shapiro"), style=detail_style_text),
                                                          plotOutput(height = "250px",
                                                                     outputId = "scatterbyState"
                                                          ),
@@ -416,7 +417,7 @@ ui <- fluidPage(
                                                          )
                                         )
                                  ),
-                                 column(8, 
+                                 column(8,
                                         plotOutput(
                                           outputId = "byState",
                                           # tooltips
@@ -442,15 +443,15 @@ ui <- fluidPage(
                                  column(4,
                                         wellPanel(h4("Select plot and the variables to include."),
                                                   radioButtons("cpselecter", "Pick your output:",
-                                                               c("Principal Component" = "pca", "K-Means" = "kmeans"), 
+                                                               c("Principal Component" = "pca", "K-Means" = "kmeans"),
                                                                selected = "pca", inline = TRUE
                                                   ),
-                                                  checkboxGroupInput("crime", "State statistics on per 100,000 people crime rates:", 
+                                                  checkboxGroupInput("crime", "State statistics on per 100,000 people crime rates:",
                                                                      choiceNames = list("Burglary","Larceny","Motor Vehicles", "Assault", "Murder", "Rape", "Robbery"),
                                                                      choiceValues = list("Burglary_rate", "Larceny_rate", "Motor_rate", "Assault_rate", "Murder_rate", "Rape_rate", "Robbery_rate"),
                                                                      selected = c("Burglary_rate", "Larceny_rate"), inline = TRUE
                                                   ),
-                                                  checkboxGroupInput("punishment", "State statistics on per capita punishment rates:", 
+                                                  checkboxGroupInput("punishment", "State statistics on per capita punishment rates:",
                                                                      choiceNames = list("State Prisons","Federal Prisons","Local Jails", "Youth Facilities", "Involuntary", "Probation", "Parole"),
                                                                      choiceValues = list("State_Prisons_rate", "Federal_Prisons_rate", "Local_Jails_rate", "Youth_Facilities_rate", "Involuntary_Commitment_rate", "Probation_rate", "Parole_rate"),
                                                                      selected = "State_Prisons_rate", inline = TRUE
@@ -481,7 +482,7 @@ ui <- fluidPage(
                                                          wellPanel(style = wellpanel_style, h5("To calculate the clusters, usually a PCA is performed first.  Then for every data point, the distance is measured from the selected number of 'centroids' (means) chosen.  Centroids are then moved and the process continues until the distances are optimized. K-means is sensitive to initial values and outliers, so examine the clusters carefully."))
                                         )
                                  ),
-                                 column(8, 
+                                 column(8,
                                         conditionalPanel(condition="input.cpselecter == 'pca'",
                                                          h4(htmlOutput("pcatext")),
                                                          plotOutput(
@@ -491,7 +492,7 @@ ui <- fluidPage(
                                                          column(6,
                                                                 h5(htmlOutput("pcatext2"), style=detail_style_text)
                                                          ),
-                                                         column(6, 
+                                                         column(6,
                                                                 plotOutput(
                                                                   outputId = "pcacontributionspine"
                                                                 )
@@ -507,7 +508,7 @@ ui <- fluidPage(
                                                          column(6,
                                                                 h5(htmlOutput("kmeanstext2"), style=detail_style_text)
                                                          ),
-                                                         column(6, 
+                                                         column(6,
                                                                 plotOutput(
                                                                   outputId = "kmeansSilhouette"
                                                                 )
@@ -516,15 +517,15 @@ ui <- fluidPage(
                                  )
                                )
                       )
-                      
+
              )
   )
 
 
 server <- shinyServer(function(input,output, session)({
-  
+
   ####### Some Functions #######
-  
+
   # Function to extract overall p-value of model
   sorted_p <- function(state.lm) {
     f <- summary(state.lm)$fstatistic
@@ -532,59 +533,59 @@ server <- shinyServer(function(input,output, session)({
     attributes(p) <- NULL
     return(p)
   }
-  
+
   ####### set up session and get data files
   session$onSessionEnded(stopApp) # kill the shiny app when the window is closed
-  
+
   wmn_data_previous <- readRDS("wmn_data_previous.RDS")
   wmn_names_genderized <- readRDS("wmn_names_genderized.RDS")
   all_errors_longer <- readRDS("all_errors_longer.RDS")
-  
+
   # static files
   KFF_data <- readRDS("KFF_data.RDS")
   state_crime <- readRDS("state_crime.RDS")
   state_punishment <- readRDS("state_punishment.RDS")
-  
-  # From the Unified Crime Reporting Statistics and under the collaboration of the U.S. Department of Justice 
-  #   and the Federal Bureau of Investigation information crime statistics are available for public review. 
-  #   The following data set has information on the crime rates and totals for states across the United States 
-  #   for a wide range of years. The crime reports are divided into two main categories: property and violent crime. 
-  #   Property crime refers to burglary, larceny, and motor related crime while violent crime refers to assault, murder, rape, and robbery. 
+
+  # From the Unified Crime Reporting Statistics and under the collaboration of the U.S. Department of Justice
+  #   and the Federal Bureau of Investigation information crime statistics are available for public review.
+  #   The following data set has information on the crime rates and totals for states across the United States
+  #   for a wide range of years. The crime reports are divided into two main categories: property and violent crime.
+  #   Property crime refers to burglary, larceny, and motor related crime while violent crime refers to assault, murder, rape, and robbery.
   #   These reports go from 1960 to 2019.
-  
+
   # https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/downloads/download-printable-files
   #state_crime <- read_csv("state_crime.csv")
-  
+
   # The non-profit, non-partisan Prison Policy Initiative produces cutting edge research to expose the broader harm of mass criminalization,
   #   and then sparks advocacy campaigns to create a more just society.
   # https://www.prisonpolicy.org/reports/correctionalcontrol2023_data_appendix.html
   # punishment rates per 100,000
   #state_punishment <- read_csv("state_punishment.csv")
-  
-  lastdate <- file.info("wmn_data_previous.RDS")$mtime  
+
+  lastdate <- file.info("wmn_data_previous.RDS")$mtime
   lastdate <- format(as.Date(lastdate), "%b %d, %Y")
   output$lastdate <- renderText({
     paste("Complete as of: ", lastdate, sep="")
   })
-  
+
   ##################### data processing ####################################
-  
+
   numcrimes <- max(row(wmn_data_previous))
-  
+
   conditionalpanel_style_controls = paste("background: #EEEEEE", "padding: 15px", sep=";")
   conditionalpanel_style_text = paste("background: #FFFFEE", "padding: 15px", sep=";")
   wellpanel_style = "background: #FFFFEE"
   detail_style_text = paste("background: #EEEEEE", "padding: 15px", sep=";")
-  
+
   # count numbers in categories
   category_counts <- wmn_names_genderized |>
     group_by(Category) |>
     summarize(Category_n = n()) |>
     arrange(desc(Category_n))
-  
+
   # Recombine data set to include the broad categories with counts
   names_category_counts <- inner_join(wmn_names_genderized, category_counts, by="Category")
-  
+
   names_category_counts <- names_category_counts |>
     mutate(
       big_category = case_when(
@@ -599,77 +600,78 @@ server <- shinyServer(function(input,output, session)({
       )
     ) |>
     filter(!is.na(big_category))
-  
+
   # Get big category counts for stats in tooltips
   big_category_counts <- names_category_counts |>
     group_by(big_category) |>
     summarize(big_category_n = n()) |>
     arrange(desc(big_category_n))
-  
+
   total_count <- big_category_counts |>
     summarize(total = sum(big_category_n))
-  
+
   named_total_count <- big_category_counts |>
     filter(big_category != "Not Listed") |>
     summarize(total = sum(big_category_n))
-  
+
   # Get numbers for stacked graph, each category with big categories redundant, long
   stacked_barplot_numbers <- inner_join(names_category_counts, big_category_counts, by = "big_category") |>
     distinct(Category, .keep_all = TRUE) |>
     dplyr::select(Category, Category_n, big_category, big_category_n) |>
     arrange(desc(big_category_n), desc(Category_n))
-  
-  # make cumulative sums of the Category subsets to make tooltips easier to calculate 
-  stacked_barplot_numbers <- stacked_barplot_numbers |> 
-    group_by(big_category) |> 
+
+  # make cumulative sums of the Category subsets to make tooltips easier to calculate
+  stacked_barplot_numbers <- stacked_barplot_numbers |>
+    group_by(big_category) |>
     mutate(csum = cumsum(Category_n))
-  
+
   # Give names_category_counts the big category counts
   names_category_counts <-
     left_join(names_category_counts, big_category_counts, by = "big_category")
-  
+
   #### Process Trans and Drag Queens to put them on the chart as add-on lines
   #   in the categories of jobs where they belong as people
-  
+
   # Get how many trans and what categories
   trans <- names_category_counts |>
     filter(Trans) |>
     left_join(stacked_barplot_numbers, by = "Category") |>
     dplyr::select(Category, big_category.x) |>
     rename('big_category' = big_category.x)
-  
+
   trans_categories <- unlist(lapply(trans$big_category, function (x) which(big_category_counts$big_category == x)))
-    
-  trans <- trans |> 
+
+  trans <- trans |>
     mutate(barrank = trans_categories)
-  
+
   # Get y-axis value (the max) from the stacked bar plot
   trans <- inner_join(trans, stacked_barplot_numbers, by="Category") |>
     dplyr::select(Category, big_category.x, barrank, Category_n, csum) |>
     rename('big_category' = big_category.x)
-  
+
   # Get locations within the small category (Category) to place the lines, per person
   # find number of trans people per category
   trans_groups <- trans |>
     group_by(Category, big_category, barrank, Category_n, csum) |>
     summarize(.groups = "keep", trans_n = n())
-  
+
   # Get how many drag queens and what categories
   dqueens <- names_category_counts |>
     filter(DQueen) |>
     left_join(stacked_barplot_numbers, by = "Category") |>
     dplyr::select(Category, big_category.x) |>
     rename('big_category' = big_category.x)
-  
+
   dqueens <- dqueens |>
     group_by(Category, big_category) |>
     summarize(.groups = "keep", Category_n = n())
-  
+  print(dqueens)
+
   ######################## Last 7 days bubble plot ###############################
-  
+
   # get the last 7 days of data (not necessarily from today)
-  wmn_data_previous_week <- wmn_data_previous |> 
-    filter(Date >= max(Date)-days(7)) |> 
+  wmn_data_previous_week <- wmn_data_previous |>
+    filter(Date >= max(Date)-days(7)) |>
     mutate(
       category_color = case_when(
         Category == "Teachers/Aides" ~ "#7A4419",
@@ -688,7 +690,7 @@ server <- shinyServer(function(input,output, session)({
         Category == "Police" ~ "#1C77C3",
         Category == "Not Listed" ~ "#FFFFFF"
       )
-    ) |> 
+    ) |>
     mutate(
       text_color = case_when(
         Category == "Teachers/Aides" ~ "#FFFFFF",
@@ -708,16 +710,16 @@ server <- shinyServer(function(input,output, session)({
         Category == "Not Listed" ~ "#000000"
       )
     )
-  
+
   numcrimesweek <- max(row(wmn_data_previous_week))
   numcrimesweektext <- paste(numcrimesweek, " new crimes added for a total of ", numcrimes, sep="")
-  
+
   # count numbers in small categories
-  category_counts_bubble <- wmn_data_previous_week |> 
+  category_counts_bubble <- wmn_data_previous_week |>
     group_by(Category) |>
     mutate(Category_n = n()) |>
     select(Category, Relation, Category_n, category_color, text_color)
-  
+
   big_category_counts_bubble <- category_counts_bubble |>
     mutate(
       big_category = case_when(
@@ -731,70 +733,70 @@ server <- shinyServer(function(input,output, session)({
         Category == "Not Listed" ~ "Not Listed"
       )
     ) |>
-    mutate(Category = str_replace(Category, "Teachers/Aides", "Teachers\nAides")) |> 
-    mutate(Category = str_replace(Category, "Day Care/Babysitters", "Day Care\nBabysitters")) |> 
-    mutate(Category = str_replace(Category, "Priests/Brothers", "Priests\nBrothers")) |> 
-    mutate(Category = str_replace(Category, "Family Friends/Neighbors", "Friends\nNeighbors")) |> 
-    mutate(Category = str_replace(Category, "Family Members", "Family\nMembers")) |> 
-    mutate(Category = str_replace(Category, "Church Employees", "Church\nEmployees")) |> 
-    mutate(Category = str_replace(Category, "Mormon Leaders", "Mormon\nLeaders")) |> 
-    filter(!is.na(big_category)) |> 
-    group_by(big_category) |> 
+    mutate(Category = str_replace(Category, "Teachers/Aides", "Teachers\nAides")) |>
+    mutate(Category = str_replace(Category, "Day Care/Babysitters", "Day Care\nBabysitters")) |>
+    mutate(Category = str_replace(Category, "Priests/Brothers", "Priests\nBrothers")) |>
+    mutate(Category = str_replace(Category, "Family Friends/Neighbors", "Friends\nNeighbors")) |>
+    mutate(Category = str_replace(Category, "Family Members", "Family\nMembers")) |>
+    mutate(Category = str_replace(Category, "Church Employees", "Church\nEmployees")) |>
+    mutate(Category = str_replace(Category, "Mormon Leaders", "Mormon\nLeaders")) |>
+    filter(!is.na(big_category)) |>
+    group_by(big_category) |>
     mutate(big_category_n = n())
 
   # Make the plot
-  
+
   output$weekbubble <- renderPlot({
-    
+
     # if include the "not listed
     if(length(str_subset(input$includebubble, "include_notlistedbubble")) > 0) {
-      big_category_counts_summary <- big_category_counts_bubble |> 
+      big_category_counts_summary <- big_category_counts_bubble |>
         distinct(Category, .keep_all = TRUE)
       # reduce size of text in plot
       range_b <- c(3,6)
     } else {
-      big_category_counts_summary <- big_category_counts_bubble |> 
+      big_category_counts_summary <- big_category_counts_bubble |>
         distinct(Category, .keep_all = TRUE)
-      big_category_counts_summary <- big_category_counts_summary |> 
+      big_category_counts_summary <- big_category_counts_summary |>
         filter(Category != "Not Listed")
       range_b <- c(4,7)
     }
-    
+
     # Create data, group by big categories, sort by size and alpha (in case of size ties)
-    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"), 
-                           value=big_category_counts_summary$Category_n, 
-                           category_color=big_category_counts_summary$category_color, 
+    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"),
+                           value=big_category_counts_summary$Category_n,
+                           category_color=big_category_counts_summary$category_color,
                            text_color=big_category_counts_summary$text_color,
-                           hovertextinfo=big_category_counts_summary$Category) |> 
+                           hovertextinfo=big_category_counts_summary$Category) |>
       arrange(desc(big_category_counts_summary$Category_n), big_category_counts_summary$Category)
-    
-    # Generate the layout. This function return a dataframe with one line per bubble. 
+
+    # Generate the layout. This function return a dataframe with one line per bubble.
     # It gives its center (x and y) and its radius, proportional of the value
     packing <- circleProgressiveLayout(weekdata$value, sizetype='area')
-    
+
     # We can add these packing information to the initial data frame
     weekdata_p <- cbind(weekdata, packing)
-    
+
     # Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportionnal to the value
     # plot(data$radius, data$value)
-    
+
     # The next step is to go from one center + a radius to the coordinates of a circle that
     # is drawn by a multitude of straight lines.
-    dat.gg <- circleLayoutVertices(packing, npoints=50) |> 
-      mutate(category_color = weekdata_p$category_color[id]) |> 
+    dat.gg <- circleLayoutVertices(packing, npoints=50) |>
+      mutate(category_color = weekdata_p$category_color[id]) |>
       mutate(text_color = weekdata_p$text_color[id])
-    
-    
-    
+
+
+
     # Make the plot
-    bubbleplot <- ggplot() + 
-      
+    bubbleplot <- ggplot() +
+
       # Make the bubbles
-      geom_polygon(data = dat.gg, aes(x, y, group = id, fill=as.factor(id)), 
-                   colour = "black", 
+      geom_polygon(data = dat.gg, aes(x, y, group = id, fill=as.factor(id)),
+                   colour = "black",
                    fill = dat.gg$category_color,
                    alpha=0.7) +
-      
+
       # Add text in the center of each bubble + control its size
       geom_text(data = weekdata_p, aes(x, y, size=value, label = group), color="black") + #, color=weekdata_p$text_color
       geom_text(data = weekdata_p, aes(x, y, size=value + 0.07, label = group), color="black") +
@@ -803,19 +805,19 @@ server <- shinyServer(function(input,output, session)({
 
     # General theme:
     bubbleplot <- bubbleplot +
-      theme_void() + 
+      theme_void() +
       theme(legend.position="none") +
-      theme(panel.border = element_blank()) 
-    
+      theme(panel.border = element_blank())
+
     # add titles
-    bubbleplot <- bubbleplot + 
+    bubbleplot <- bubbleplot +
       labs(
         title = "The last 7 days, Sex crimes against children",
         subtitle = numcrimesweektext,
-      ) 
-    
+      )
+
     # make theme prettier
-    bubbleplot <- bubbleplot + 
+    bubbleplot <- bubbleplot +
       theme(
         plot.title = element_text( # font size "large"
           size = 20,
@@ -828,73 +830,73 @@ server <- shinyServer(function(input,output, session)({
           margin = margin(b = 15/2)
         )
       )
-    
+
     # show the figure
     bubbleplot
-    
+
   })
-  
+
   ############ bubble plot hover text ##############
-  
+
   output$bubbleplot_info <- renderUI({
-    
+
     if(length(str_subset(input$includebubble, "include_notlisted")) > 0) {
-      big_category_counts_summary <- big_category_counts_bubble |> 
+      big_category_counts_summary <- big_category_counts_bubble |>
         distinct(Category, .keep_all = TRUE)
     } else {
-      big_category_counts_summary <- big_category_counts_bubble |> 
+      big_category_counts_summary <- big_category_counts_bubble |>
         distinct(Category, .keep_all = TRUE)
-      big_category_counts_summary <- big_category_counts_summary |> 
+      big_category_counts_summary <- big_category_counts_summary |>
         filter(Category != "Not Listed")
     }
-    
+
     # Create data, group by big categories, sort by size and alpha (in case of size ties)
-    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"), 
-                           value=big_category_counts_summary$Category_n, 
-                           category_color=big_category_counts_summary$category_color, 
+    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"),
+                           value=big_category_counts_summary$Category_n,
+                           category_color=big_category_counts_summary$category_color,
                            text_color=big_category_counts_summary$text_color,
-                           hovertextinfo=big_category_counts_summary$Category) |> 
+                           hovertextinfo=big_category_counts_summary$Category) |>
       arrange(desc(big_category_counts_summary$Category_n), big_category_counts_summary$Category)
-    
-    # Generate the layout. This function return a dataframe with one line per bubble. 
+
+    # Generate the layout. This function return a dataframe with one line per bubble.
     # It gives its center (x and y) and its radius, proportional of the value
     packing <- circleProgressiveLayout(weekdata$value, sizetype='area')
-    
+
     # We can add these packing information to the initial data frame
     weekdata_p <- cbind(weekdata, packing)
-    
-    
+
+
     # capture location of mouse hovering after it pauses
     hover_bubble <- input$bubbleplot_hover
-    
+
     if(!is.null(hover_bubble)){ # mouse is in bounds
       left_px_bubble <- hover_bubble$x  # for chart coordinates
-      top_px_bubble <- hover_bubble$y  
-      
+      top_px_bubble <- hover_bubble$y
+
       left_css_px_bubble <- hover_bubble$coords_css$x  # for position of tooltip
       top_css_px_bubble <- hover_bubble$coords_css$y
-      
+
       # if mouse is on left of graph, put tool tips to right.  if on right put on left
       style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                       "left:", left_css_px_bubble, "px; top:", top_css_px_bubble-700, "px;")
-      
+
       groupval <- NULL
       for(i in 1:length(weekdata_p$radius)){
         if(sqrt((left_px_bubble - weekdata_p$x[i])^2 + (top_px_bubble - weekdata_p$y[i])^2) < weekdata_p$radius[i]){
           groupval <- weekdata_p$hovertextinfo[i]
         }
       }
-      
+
       # construct names hover info
       if(!is.null(groupval)){
-        hovertext_bubble <- big_category_counts_bubble |> 
-          filter(Category == groupval) |> 
-          ungroup() |> 
-          select(Relation) |> 
+        hovertext_bubble <- big_category_counts_bubble |>
+          filter(Category == groupval) |>
+          ungroup() |>
+          select(Relation) |>
           distinct()
-        
+
         # remove entries with numbers, gets weird.
-        hovertext_bubble <- hovertext_bubble[!str_detect(hovertext_bubble$Relation, '[0-9]'),] 
+        hovertext_bubble <- hovertext_bubble[!str_detect(hovertext_bubble$Relation, '[0-9]'),]
 
         hovertext_str <- NULL
         if(dim(hovertext_bubble)[1] == 1){
@@ -922,38 +924,38 @@ server <- shinyServer(function(input,output, session)({
           #hovertext_str <- str_replace_all(hovertext_str, ";","<br />* ")
           hovertextformatted <- paste("<b>People listed here included:</b>", hovertext_str, sep="<br />")
         }
-        
+
         crimes_on_date_text <- hovertextformatted
-        
+
         wellPanel(
           style = style,
           p(HTML(crimes_on_date_text))
         )
       }
     }
-    
+
   })
-  
+
   ######################## About - cumulative sum of data ###############################
-  
+
   # fill in zeros for days with no crimes, create a df ready for time series
   eventsperday <- wmn_data_previous |>
-    group_by(Date) |> 
-    summarize(perday = n()) |> 
-    complete(Date = seq.Date(min(Date), max(Date), by = "days"), 
-             fill = list(perday = 0)) |> 
-    mutate(cum_sum = cumsum(perday)) |> 
+    group_by(Date) |>
+    summarize(perday = n()) |>
+    complete(Date = seq.Date(min(Date), max(Date), by = "days"),
+             fill = list(perday = 0)) |>
+    mutate(cum_sum = cumsum(perday)) |>
     arrange(Date)
-  
+
   ##############
   # Linear model
   ##############
-  
+
   # get the last month's data, count, and make a linear regression
   sumduration = 30
-  numEventsperday_reg <- eventsperday |> 
+  numEventsperday_reg <- eventsperday |>
     filter(Date > max(Date) - duration(sumduration, 'days'))
-  
+
   #textlabel <- "Linear model"
   cumsum30.lm = lm(cum_sum ~ Date, data=numEventsperday_reg)
   # p-value
@@ -965,45 +967,45 @@ server <- shinyServer(function(input,output, session)({
   cumsumlineartext <- "Above, predicted crimes based on linear regression use the last 30 days of data and the current date. The dark red dotted line represents the regression, with"
   cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), " (no hover data on this plot)", sep='')
   cumsumlineartext <- paste(cumsumlineartext, "<br /><br />Below, the errors of the linear prediction, per day (hover for actual and predicted values).")
-  
+
   nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
-  
+
   # get limits for error line plots
   ylim_low <- 999
   ylim_high <- -999
-  
+
   # get errors for line plot
-  linear_error <- all_errors_longer |> 
+  linear_error <- all_errors_longer |>
     filter(model == "lin_diffcrimes")
-  
-  linear_over_predict <- linear_error |> 
+
+  linear_over_predict <- linear_error |>
     filter(value > 0)
   if(max(linear_over_predict$value) > ylim_high){ylim_high <- max(linear_over_predict$value)}
-  linear_under_predict <- linear_error |> 
+  linear_under_predict <- linear_error |>
     filter(value < 0)
   if(min(linear_under_predict$value) < ylim_low){ylim_low <- min(linear_under_predict$value)}
-  linear_well_predict <- linear_error |> 
+  linear_well_predict <- linear_error |>
     filter(value == 0)
-  
+
   ############
   # ETS model - last month of data
   ###########
   eventsperday_m <- eventsperday |>
-    filter(Date >= now()-days(30)) |> 
+    filter(Date >= now()-days(30)) |>
     filter(Date < date(now())) |>  # remove today because we're predicting today
-    select(date=Date, value=perday) |> 
+    select(date=Date, value=perday) |>
     as_tsibble(index=date)
-  
+
   # ETS: Exponential smoothing state space model
-  fit <- eventsperday_m |> 
+  fit <- eventsperday_m |>
     model(
       ets = ETS(value)
     )
-  
+
   # use model to forecast 10 days into future, including today
-  fc <- fit |> 
+  fc <- fit |>
     forecast(h = 10)
-  
+
   futuredata <- tibble(date=fc$date, crimes=fc$.mean)
   todaycrime <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$crimes
   todaydate <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$date
@@ -1012,27 +1014,27 @@ server <- shinyServer(function(input,output, session)({
     todaycrime <- futuredata[futuredata$date == max(futuredata$date),]$crimes
     todaydate <- futuredata[futuredata$date == max(futuredata$date),]$date
   }
-  
+
   nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
-  
+
   # get errors for line plot
-  ets_error <- all_errors_longer |> 
+  ets_error <- all_errors_longer |>
     filter(model == "ets_diffcrimes")
-  ets_over_predict <- ets_error |> 
+  ets_over_predict <- ets_error |>
     filter(value > 0)
   if(max(ets_over_predict$value) > ylim_high){ylim_high <- max(ets_over_predict$value)}
-  ets_under_predict <- ets_error |> 
+  ets_under_predict <- ets_error |>
     filter(value < 0)
   if(min(ets_under_predict$value) < ylim_low){ylim_low <- min(ets_under_predict$value)}
-  ets_well_predict <- ets_error |> 
+  ets_well_predict <- ets_error |>
     filter(value == 0)
-  
+
   ##############
   # decomp model
   ##############
   eventsperday_d <- eventsperday |>
     filter(Date >= now()-(days(30) + (8 - wday(now())))) # last 30 days + some for next filter
-  
+
   # start the time series on Sunday so we don't have to calculate what day the model spits out
   # day of the week, starting on Sunday, day 7
   startindex <- 1
@@ -1041,78 +1043,78 @@ server <- shinyServer(function(input,output, session)({
       startindex <- i
     }
   }
-  
+
   tsdata = ts(eventsperday_d$perday[startindex:length(eventsperday_d$perday)], freq=7) ## “seasonal” window of 7 days
   #stl_data <- stl(tsdata, s.window=30)
   decomp_data_d <- decompose(tsdata, "multiplicative")
-  
+
   # get today's crime by multiplying today's seasonal position by the current trend
   todaycrime_d <- decomp_data_d$seasonal[wday(now())] *
     mean(decomp_data_d$trend[!is.na(decomp_data_d$trend)])
-    
+
   # # get the seasonal * mean trend for plotting, removing NAs from trend data
   # date_d <- eventsperday_d$Date[startindex:length(eventsperday_d$perday)]
-  # date_d <- date_d[!is.na(decomp_data$trend)] |> 
+  # date_d <- date_d[!is.na(decomp_data$trend)] |>
   #   wday(label=TRUE)
   # seasonal_trend_d <- decomp_data$seasonal[!is.na(decomp_data$trend)] * mean(decomp_data$trend[!is.na(decomp_data$trend)])
   # decomp_df <- cbind.data.frame(date=seq(1:length(date_d)), value=seasonal_trend_d)
-  
+
   # get the seasonal * mean trend for plotting, removing NAs from trend data
   date_d <- wday(seq(1:7),label=TRUE)
   seasonal_trend_d <- decomp_data_d$seasonal * mean(decomp_data_d$trend[!is.na(decomp_data_d$trend)])
   decomp_df <- cbind.data.frame(date=seq(1:7), value=seasonal_trend_d[1:7])
-  
+
   # find today for plot
-  decomp_df_today <- decomp_df |> 
+  decomp_df_today <- decomp_df |>
     filter(date==wday(now()))
-  
+
   nextcrimetext_d <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime_d, 0), sep="")
-  
+
   # get errors for line plot
-  d_error <- all_errors_longer |> 
+  d_error <- all_errors_longer |>
     filter(model == "d_diffcrimes")
-  d_over_predict <- d_error |> 
+  d_over_predict <- d_error |>
     filter(value > 0)
   if(max(d_over_predict$value) > ylim_high){ylim_high <- max(d_over_predict$value)}
-  d_under_predict <- d_error |> 
+  d_under_predict <- d_error |>
     filter(value < 0)
   if(min(d_under_predict$value) < ylim_low){ylim_low <- min(d_under_predict$value)}
-  d_well_predict <- d_error |> 
+  d_well_predict <- d_error |>
     filter(value == 0)
-  
+
   # for ets line plot
-  ets_error <- all_errors_longer |> 
+  ets_error <- all_errors_longer |>
     filter(model == "ets_diffcrimes")
-  ets_over_predict <- ets_error |> 
+  ets_over_predict <- ets_error |>
     filter(value > 0)
-  ets_under_predict <- ets_error |> 
+  ets_under_predict <- ets_error |>
     filter(value < 0)
-  ets_well_predict <- ets_error |> 
+  ets_well_predict <- ets_error |>
     filter(value == 0)
-  
+
   # for decomp plotting
-  d_error <- all_errors_longer |> 
+  d_error <- all_errors_longer |>
     filter(model == "d_diffcrimes")
-  d_over_predict <- d_error |> 
+  d_over_predict <- d_error |>
     filter(value > 0)
-  d_under_predict <- d_error |> 
+  d_under_predict <- d_error |>
     filter(value < 0)
-  d_well_predict <- d_error |> 
+  d_well_predict <- d_error |>
     filter(value == 0)
- 
+
   ##################
   # Linear model plot
-    
+
   output$plotcumsum <- renderPlot({
-    
+
     if(input$modelselecter == "linearmodel"){
       output$cumsumlineartext <- renderText({
         cumsumlineartext
       })
-        
+
     }
-    
-    cumsumplot <- ggplot(eventsperday, aes(x=Date, y=cum_sum)) + 
+
+    cumsumplot <- ggplot(eventsperday, aes(x=Date, y=cum_sum)) +
       geom_line() +
       #stat_bin(aes(, geom="step") +
       #geom_text(aes(x=min(Date), y=ypos, label = nextcrimetext, group = NULL), size=7, vjust=1, hjust=0) +
@@ -1121,28 +1123,28 @@ server <- shinyServer(function(input,output, session)({
         legend.position = "none",
         panel.border = element_blank(),
       )
-    
+
     # construct the linear regression
     if(input$modelselecter == "linearmodel"){
       cumsumplot <- cumsumplot +
-        geom_smooth(data = numEventsperday_reg, 
-                    method='lm', formula = y ~ x, color='darkred', 
+        geom_smooth(data = numEventsperday_reg,
+                    method='lm', formula = y ~ x, color='darkred',
                     fullrange = TRUE, linetype="dotted",
                     se = FALSE, na.rm=TRUE) +
         ylim(0, NA)
     } else if(input$modelselecter == "daymodel"){
       # no regression
     }
-    
+
     # add titles
-    cumsumplot <- cumsumplot + 
+    cumsumplot <- cumsumplot +
       labs(
         title = nextcrimetext,
         subtitle = "Linear model",
-        x = "Date", 
+        x = "Date",
         y = "Cumulative sum of sex crimes against children"
-      ) 
-    
+      )
+
     # make theme prettier
     cumsumplot <- cumsumplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1164,16 +1166,16 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     cumsumplot
-    
+
   })
-  
+
   # line error plot
   output$linearerrorplot <- renderPlot({
-    
-    lin_err_lineplot <- ggplot(linear_error, aes(x = date, y = value)) + 
+
+    lin_err_lineplot <- ggplot(linear_error, aes(x = date, y = value)) +
       geom_line() +
       geom_point(data=linear_over_predict, aes(x = date, y = value), col="red") +
       geom_point(data=linear_under_predict, aes(x = date, y = value), col="blue") +
@@ -1184,17 +1186,17 @@ server <- shinyServer(function(input,output, session)({
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
-    
+      )
+
     # add titles
-    lin_err_lineplot <- lin_err_lineplot + 
+    lin_err_lineplot <- lin_err_lineplot +
       labs(
         title = "Errors of Linear Model Estimates",
         #subtitle = "Error per date",
-        y = "Predicted minus Actual", 
+        y = "Predicted minus Actual",
         x = "Date"
-      ) 
-    
+      )
+
     # make theme prettier
     lin_err_lineplot <- lin_err_lineplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1216,34 +1218,34 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     lin_err_lineplot
-    
+
   })
-  
+
   ########### tooltips for linear model lineplot ##########
-  
+
   output$errorlineplot_info <- renderUI({
-    
+
     # capture location of mouse hovering after it pauses
     hover <- input$errorlineplot_hover
-    
+
     if(!is.null(hover)){ # mouse is in bounds
       left_px <- hover$x  # for chart coordinates
       linear_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      top_px <- hover$y  
-      
+      top_px <- hover$y
+
       left_css_px <- hover$coords_css$x  # for position of tooltip
       top_css_px <- hover$coords_css$y
-      
+
       # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      # crimes_on_date <-  wmn_data_previous |> 
-      #   filter(Date == wmn_data_previous_x) |> 
+      # crimes_on_date <-  wmn_data_previous |>
+      #   filter(Date == wmn_data_previous_x) |>
       #   select(Date, Name, State)
-      
+
       middate_linerror <- (max(linear_error$date)-min(linear_error$date))/2 + min(linear_error$date)
-      
+
       # if mouse is on left of graph, put tool tips to right.  if on right put on left
       if(linear_error_x < middate_linerror){
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
@@ -1252,28 +1254,28 @@ server <- shinyServer(function(input,output, session)({
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                         "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
       }
-      
+
       # construct names hover info
       linearerror_text <- paste("<b>",linear_error_x,"</b><br />",
                                "Actual crimes: ", linear_error$actual[linear_error$date == linear_error_x],"<br />",
                                "Predicted: ",(linear_error$actual[linear_error$date == linear_error_x] + linear_error$value[linear_error$date == linear_error_x]), sep="")
 
       #crimes_on_date_text
-      
+
       wellPanel(
         style = style,
         p(HTML(linearerror_text))
       )
     }
-    
+
   })
-  
+
   ##################
   # ETS model plot
-  
+
   output$ets <- renderPlot({
-    
-    forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) + 
+
+    forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) +
       geom_line() +
       geom_point() +
       geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
@@ -1284,16 +1286,16 @@ server <- shinyServer(function(input,output, session)({
         panel.border = element_blank(),
       ) +
       ylim(0, NA)
-    
+
     # add titles
-    forecastplot <- forecastplot + 
+    forecastplot <- forecastplot +
       labs(
         title = nextcrimetext_m,
         subtitle = "ETS model",
-        x = "Date", 
+        x = "Date",
         y = "Sex crimes against children"
-      ) 
-    
+      )
+
     # make theme prettier
     forecastplot <- forecastplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1315,16 +1317,16 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     forecastplot
-    
+
   })
-  
+
   ## ets error plot
   output$etserrorplot <- renderPlot({
-    
-  ets_err_lineplot <- ggplot(ets_error, aes(x = date, y = value)) + 
+
+  ets_err_lineplot <- ggplot(ets_error, aes(x = date, y = value)) +
     geom_line() +
     geom_point(data=ets_over_predict, aes(x = date, y = value), col="red") +
     geom_point(data=ets_under_predict, aes(x = date, y = value), col="blue") +
@@ -1335,16 +1337,16 @@ server <- shinyServer(function(input,output, session)({
     theme(
       legend.position = "none",
       panel.border = element_blank(),
-    ) 
-  
+    )
+
   # add titles
-  ets_err_lineplot <- ets_err_lineplot + 
+  ets_err_lineplot <- ets_err_lineplot +
     labs(
       title = "Errors of ETS Model Estimates",
-      y = "Predicted minus Actual", 
+      y = "Predicted minus Actual",
       x = "Date"
     )
-  
+
   # make theme prettier
   ets_err_lineplot <- ets_err_lineplot + theme(
     legend.position="none",  # remove legend because tooltips will suffice
@@ -1366,34 +1368,34 @@ server <- shinyServer(function(input,output, session)({
       margin = margin(b = 15/2)
     )
   )
-  
+
   # show the figure
   ets_err_lineplot
-  
+
   })
-  
+
   ########### tooltips for ets model lineplot ##########
-  
+
   output$erroretsplot_info <- renderUI({
-    
+
     # capture location of mouse hovering after it pauses
     hover <- input$erroretsplot_hover
-    
+
     if(!is.null(hover)){ # mouse is in bounds
       left_px <- hover$x  # for chart coordinates
       ets_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      top_px <- hover$y  
-      
+      top_px <- hover$y
+
       left_css_px <- hover$coords_css$x  # for position of tooltip
       top_css_px <- hover$coords_css$y
-      
+
       # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      # crimes_on_date <-  wmn_data_previous |> 
-      #   filter(Date == wmn_data_previous_x) |> 
+      # crimes_on_date <-  wmn_data_previous |>
+      #   filter(Date == wmn_data_previous_x) |>
       #   select(Date, Name, State)
-      
+
       middate_etserror <- (max(ets_error$date)-min(ets_error$date))/2 + min(ets_error$date)
-      
+
       # if mouse is on left of graph, put tool tips to right.  if on right put on left
       if(ets_error_x < middate_etserror){
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
@@ -1402,28 +1404,28 @@ server <- shinyServer(function(input,output, session)({
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                         "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
       }
-      
+
       # construct names hover info
       etserror_text <- paste("<b>",ets_error_x,"</b><br />",
                                 "Actual crimes: ", ets_error$actual[ets_error$date == ets_error_x],"<br />",
                                 "Predicted: ",(ets_error$actual[ets_error$date == ets_error_x] + ets_error$value[ets_error$date == ets_error_x]), sep="")
-      
+
       #crimes_on_date_text
-      
+
       wellPanel(
         style = style,
         p(HTML(etserror_text))
       )
     }
-    
+
   })
-  
+
   ##################
   # Decomp model plot
-  
+
   output$decomp <- renderPlot({
-    
-    decompplot <- ggplot(decomp_df, aes(x=date, y=value)) + 
+
+    decompplot <- ggplot(decomp_df, aes(x=date, y=value)) +
       geom_line() +
       geom_point(data = decomp_df_today, aes(x=date, y=value), col="red", shape = "diamond", size=5) +
       theme_light() +
@@ -1432,17 +1434,17 @@ server <- shinyServer(function(input,output, session)({
         panel.border = element_blank(),
       ) +
       ylim(0, NA)
-    
+
     # add titles
-    decompplot <- decompplot + 
+    decompplot <- decompplot +
       labs(
         title = nextcrimetext_d,
         subtitle = "Decomposition model",
-        x = "Date", 
+        x = "Date",
         y = "Time series of sex crimes against children"
       ) +
       scale_x_continuous(breaks=seq(1:length(date_d)), labels=as.character(date_d))
-    
+
     # make theme prettier
     decompplot <- decompplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1464,16 +1466,16 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     decompplot
-    
+
   })
-  
+
   # for plotting d error line plot
   output$derrorplot <- renderPlot({
-  
-  d_err_lineplot <- ggplot(d_error, aes(x = date, y = value)) + 
+
+  d_err_lineplot <- ggplot(d_error, aes(x = date, y = value)) +
     geom_line() +
     geom_point(data=d_over_predict, aes(x = date, y = value), col="red") +
     geom_point(data=d_under_predict, aes(x = date, y = value), col="blue") +
@@ -1484,16 +1486,16 @@ server <- shinyServer(function(input,output, session)({
     theme(
       legend.position = "none",
       panel.border = element_blank(),
-    ) 
-  
+    )
+
   # add titles
-  d_err_lineplot <- d_err_lineplot + 
+  d_err_lineplot <- d_err_lineplot +
     labs(
       title = "Errors of Decomposition Model Estimates",
-      y = "Predicted minus Actual", 
+      y = "Predicted minus Actual",
       x = "Date"
     )
-  
+
   # make theme prettier
   d_err_lineplot <- d_err_lineplot + theme(
     legend.position="none",  # remove legend because tooltips will suffice
@@ -1515,33 +1517,33 @@ server <- shinyServer(function(input,output, session)({
       margin = margin(b = 15/2)
     )
   )
-  
+
   # show the figure
   d_err_lineplot
   })
-  
+
   ########### tooltips for ets model lineplot ##########
-  
+
   output$errordplot_info <- renderUI({
-    
+
     # capture location of mouse hovering after it pauses
     hover <- input$errordplot_hover
-    
+
     if(!is.null(hover)){ # mouse is in bounds
       left_px <- hover$x  # for chart coordinates
       d_error_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      top_px <- hover$y  
-      
+      top_px <- hover$y
+
       left_css_px <- hover$coords_css$x  # for position of tooltip
       top_css_px <- hover$coords_css$y
-      
+
       # #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-      # crimes_on_date <-  wmn_data_previous |> 
-      #   filter(Date == wmn_data_previous_x) |> 
+      # crimes_on_date <-  wmn_data_previous |>
+      #   filter(Date == wmn_data_previous_x) |>
       #   select(Date, Name, State)
-      
+
       middate_derror <- (max(d_error$date)-min(d_error$date))/2 + min(d_error$date)
-      
+
       # if mouse is on left of graph, put tool tips to right.  if on right put on left
       if(d_error_x < middate_derror){
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
@@ -1550,35 +1552,35 @@ server <- shinyServer(function(input,output, session)({
         style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                         "left:", left_css_px-100, "px; top:", top_css_px-500, "px;")
       }
-      
+
       # construct names hover info
       derror_text <- paste("<b>",d_error_x,"</b><br />",
                              "Actual crimes: ", d_error$actual[d_error$date == d_error_x],"<br />",
                              "Predicted: ",(d_error$actual[d_error$date == d_error_x] + d_error$value[d_error$date == d_error_x]), sep="")
-      
+
       #crimes_on_date_text
-      
+
       wellPanel(
         style = style,
         p(HTML(derror_text))
       )
     }
-    
+
   })
-  
-  
+
+
   ##### all three errors plot #####
-  
+
   output$allthree <- renderPlot({
-    
-    allthree_plot <- ggplot(all_errors_longer, aes(x=model, y=value)) + 
+
+    allthree_plot <- ggplot(all_errors_longer, aes(x=model, y=value)) +
       geom_boxplot()+
       theme_light() +
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
-    
+      )
+
     allthree_plot <- allthree_plot +
       scale_x_discrete(drop=FALSE, na.translate = FALSE,
                        breaks = c(
@@ -1592,15 +1594,15 @@ server <- shinyServer(function(input,output, session)({
                          "ETS"
                        )
       )
-    
+
     # add titles
-    allthree_plot <- allthree_plot + 
+    allthree_plot <- allthree_plot +
       labs(
         title = "Errors of Model Estimates",
-        y = "Predicted minus Actual", 
+        y = "Predicted minus Actual",
         x = "Models"
-      ) 
-    
+      )
+
     # make theme prettier
     allthree_plot <- allthree_plot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1622,25 +1624,25 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     allthree_plot
-    
+
   })
-  
-  
+
+
   #################################### About That Line ###############################
-  
+
   # get the brush info when needed
   ranges <- reactiveValues(x = NULL, y = NULL)
   #print(paste("reactiveValues: ", ranges, sep=""))
-  
+
   # draw the line plot of raw (daily sum, "perday") values
   output$linedataraw <- renderPlot({
-    
+
     #print(paste("plot: ", ranges$x, sep=""))
-    
-    lineplot <- ggplot(eventsperday, aes(x=Date, y=perday)) + 
+
+    lineplot <- ggplot(eventsperday, aes(x=Date, y=perday)) +
       geom_line() +
       geom_point() +
       coord_cartesian(xlim = ranges$x, ylim = ranges$y, expand = FALSE) +
@@ -1650,17 +1652,17 @@ server <- shinyServer(function(input,output, session)({
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
-    
+      )
+
     # add titles
-    lineplot <- lineplot + 
+    lineplot <- lineplot +
       labs(
         title = "Sex crimes against children",
         subtitle = "Daily data",
-        x = "Date", 
+        x = "Date",
         y = "Individual sex crimes against children"
-      ) 
-    
+      )
+
     # make theme prettier
     lineplot <- lineplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1682,12 +1684,12 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the figure
     lineplot
-    
+
   })
-  
+
     # When a double-click happens, check if there's a brush on the plot.
     # If so, zoom to the brush bounds; if not, reset the zoom.
     observeEvent(input$plot_dblclick, {
@@ -1695,35 +1697,35 @@ server <- shinyServer(function(input,output, session)({
       if (!is.null(brush)) {
         ranges$x <- c(as.Date(round(brush$xmin), origin = "1970-01-01"), as.Date(round(brush$xmax), origin = "1970-01-01"))
         ranges$y <- c(round(brush$ymin), round(brush$ymax))
-        
+
       } else {
         ranges$x <- NULL
         ranges$y <- NULL
       }
     })
-    
+
     #### tooltips for line plot, just give names ####
-    
+
     middate <- (max(wmn_data_previous$Date) - min(wmn_data_previous$Date))/2+min(wmn_data_previous$Date)
-    
+
     output$lineplot_info <- renderUI({
-      
+
       # capture location of mouse hovering after it pauses
       hover <- input$lineplot_hover
-      
+
       if(!is.null(hover)){ # mouse is in bounds
         left_px <- hover$x  # for chart coordinates
         wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-        top_px <- hover$y  
-        
+        top_px <- hover$y
+
         left_css_px <- hover$coords_css$x  # for position of tooltip
         top_css_px <- hover$coords_css$y
-        
+
         #wmn_data_previous_x <- as.Date(round(left_px), origin = "1970-01-01")  # turn into date
-        crimes_on_date <-  wmn_data_previous |> 
-          filter(Date == wmn_data_previous_x) |> 
+        crimes_on_date <-  wmn_data_previous |>
+          filter(Date == wmn_data_previous_x) |>
           select(Date, Name, State)
-        
+
         # if mouse is on left of graph, put tool tips to right.  if on right put on left
         if(wmn_data_previous_x < middate){
           style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
@@ -1735,7 +1737,7 @@ server <- shinyServer(function(input,output, session)({
           style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                           "left:", left_css_px-350, "px; top:", top_css_px-500, "px;")
         }
-      
+
         # construct names hover info, two columns
         crimes_on_date_text <- paste("<b>",wmn_data_previous_x,"</b><br /><b>Names of people charged:</b><br />",sep="")
         counter <- 0
@@ -1758,45 +1760,45 @@ server <- shinyServer(function(input,output, session)({
           }
         }
         #crimes_on_date_text
-        
+
         wellPanel(
           style = style,
           p(HTML(crimes_on_date_text))
         )
       }
-      
+
     })
-    
-    
+
+
     ###### time series analysis #####
-    
+
     tsdata_all = ts(eventsperday$perday[startindex:length(eventsperday$perday)], freq=7) ## “seasonal” window of 7 days
     #stl_data <- stl(tsdata, s.window=30)
     decomp_data <- decompose(tsdata_all, "multiplicative")
-    
+
     output$timeseries <- renderPlot({
-      
-    dat = cbind(eventsperday$Date[startindex:length(eventsperday$Date)], 
+
+    dat = cbind(eventsperday$Date[startindex:length(eventsperday$Date)],
                 with(decomp_data, data.frame(Observed=x, Trend=trend, Seasonal=seasonal, Random=random)))
-    
-    dat <- dat |> 
-      mutate(date = eventsperday$Date[startindex:length(eventsperday$Date)]) |> 
+
+    dat <- dat |>
+      mutate(date = eventsperday$Date[startindex:length(eventsperday$Date)]) |>
       select(c(date, Observed, Trend, Seasonal))
-    
+
     timeseriesplot <- ggplot(gather(dat, component, value, -date), aes(date, value), scale = continuous) +
       facet_grid(component ~ ., scales="free_y") +
       geom_line() +
       scale_x_continuous() +
       scale_y_continuous()
-    
+
     # add titles
-    timeseriesplot <- timeseriesplot + 
+    timeseriesplot <- timeseriesplot +
       labs(
         title = "Decomposed WMN Sex Crimes against Children",
-        x = "Date", 
+        x = "Date",
         y = "Crimes per day"
-      ) 
-    
+      )
+
     # make theme prettier
     timeseriesplot <- timeseriesplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1818,18 +1820,18 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # show the plot
     timeseriesplot
-    
+
   })
-  
-  
+
+
   ######################## Groups of People Bar Plot ###############################
-  
+
   # make the stacked bar chart
   output$plot1 <- renderPlot({
-    
+
     # if we don't include "Not Listed", filter it out so it doesn't get plotted; move annotations.
     boolean_include_notlisted = TRUE
     if(length(str_subset(input$include, "include_notlisted")) == 0){
@@ -1838,16 +1840,16 @@ server <- shinyServer(function(input,output, session)({
       trans_groups$barrank = trans_groups$barrank -1
       boolean_include_notlisted = FALSE
     }
-    
+
     # set up annotations for trans and drag queens (they may be in more than one category)
     #    Function to add rectangle for number of trans, height = number in the correct category
     add_trans_rectangle <- function(trans_group){
       geom_rect(data = trans_group, aes(xmin = barrank-0.44, xmax = barrank+0.44, ymin = (csum - (Category_n/2)), ymax = (csum - (Category_n/2) + trans_n)), fill = "yellow", color = "yellow")
     }
-    
+
     #    Function to add rectangle for number of drag queens, height = number in the correct category
     ##### Placeholder to be filled in once any drag queen is charged ####
-    
+
     # Function to add text with numbers and percentage of trans, depending on if "not listed" is included
     add_trans_annotations <- function(trans_group, count, not_listed = FALSE){
       if(not_listed == FALSE){
@@ -1859,20 +1861,20 @@ server <- shinyServer(function(input,output, session)({
                         label = paste(trans_group$trans_n, " people who are trans\n", round(trans_group$trans_n / count * 100, digits=1), percenttext, sep=""),
                         size = 6, hjust = 0, vjust = 0)
     }
-    
+
     # create base plot
     wmn_barplot <- ggplot(data = names_category_counts, aes(x = fct_infreq(big_category), fill= fct_reorder(Category,Category_n), text=Category)) +
       geom_bar(color = "black", stat = "count")
-    
+
     # add annotations and bars if indicated trans
     if(length(str_subset(input$include, "include_trans")) > 0) {
       for(i in 1:dim(trans_groups)[1]){
         wmn_barplot <- wmn_barplot + add_trans_rectangle(trans_groups[i,])
       }
-      trans_group_flat <- trans_groups |> 
+      trans_group_flat <- trans_groups |>
         filter(barrank == max(trans_groups$barrank))
       trans_group_flat$trans_n = sum(trans_groups$trans_n)
-      
+
       if(!boolean_include_notlisted){
         # pick farthest group to add text annotations to, but for sum of named groups
         wmn_barplot <- wmn_barplot + add_trans_annotations(trans_group_flat, named_total_count, not_listed = boolean_include_notlisted)
@@ -1881,11 +1883,16 @@ server <- shinyServer(function(input,output, session)({
         wmn_barplot <- wmn_barplot + add_trans_annotations(trans_group_flat, total_count, not_listed = boolean_include_notlisted)
       }
     }
-    
+
     if(length(str_subset(input$include, "include_dragqueen")) > 0){
-      wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = "Not a single Drag Queen.", size = 7, vjust=1, hjust=1)
+      if(dim(dqueens)[1] == 0){
+        wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = "Not a single Drag Queen.", size = 7, vjust=1, hjust=1)
+      } else {
+        wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = "Possible Drag Queen in List", size = 7, vjust=1, hjust=1)
+      }
+
     }
-    
+
     # manually put in labels and group matching colors
     wmn_barplot <- wmn_barplot +
       scale_fill_manual(drop=FALSE, na.translate = FALSE,
@@ -1941,16 +1948,16 @@ server <- shinyServer(function(input,output, session)({
                           "Doctors" = "#009900"
                         )
       )
-    
+
     # add titles
-    wmn_barplot <- wmn_barplot + 
+    wmn_barplot <- wmn_barplot +
       labs(
         title = "Crimes against children",
         subtitle = "Data from 'Who's Making News for Sex Crimes Involving Children?'",
-        x = "", 
+        x = "",
         y = "Number of individuals"
       )
-    
+
     # make bar chart prettier
     wmn_barplot <- wmn_barplot + theme(
       legend.position="none",  # remove legend because tooltips will suffice
@@ -1971,15 +1978,15 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     # display bar chart
     wmn_barplot
-    
+
   })
-  
+
   # tooltips for bar chart
   output$hover_info_bar <- renderUI({
-    
+
     # if we don't include "Not Listed", filter it out of the data for labels - default is FALSE
     if(length(str_subset(input$include, "include_notlisted")) == 0){
       big_category_counts <- big_category_counts |>
@@ -1987,26 +1994,26 @@ server <- shinyServer(function(input,output, session)({
       stacked_barplot_numbers <- stacked_barplot_numbers |>
         filter(Category != "Not Listed")
     }
-    
+
     # capture location of mouse hovering after it pauses
     hover_bar <- input$plot_hover_bar
-    
+
     left_px_bar <- hover_bar$x  # for chart coordinates
     top_px_bar <- hover_bar$y
-    
+
     left_css_px_bar <- hover_bar$coords_css$x  # for position of tooltip
     top_css_px_bar <- hover_bar$coords_css$y
-    
+
     # create style property for tooltip
     # background color is set so tooltip is a bit transparent
     # z-index is set so we are sure are tooltip will be on top
     style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                     "left:", left_css_px_bar+5, "px; top:", top_css_px_bar-500, "px;")
-    
+
     # actual tooltip created as a "wellPanel"
     # If the cursor is out of bounds of the figure, then hover is null and no tooltip shown
     if(is.null(hover_bar)){
-      
+
     } else { # mouse is in bounds, find the column, 8 max (if including Not Listed), 0 is between bars
       mouse_pos <- case_when(
         left_px_bar < 0.55 ~ 0,
@@ -2027,36 +2034,36 @@ server <- shinyServer(function(input,output, session)({
         left_px_bar <= 8.4 ~ 8,
         left_px_bar > 8.4 ~ 0
       )
-      
+
       if(mouse_pos != 0){
         # set name of column
         tooltip_big_category <- big_category_counts[mouse_pos,1]
-        
+
         # get name of small category ("Category") from position of top_px cursor
         tooltip_small_category_counts <- stacked_barplot_numbers |>
           filter(big_category == tooltip_big_category) |>
           filter(top_px_bar <= csum)
         tooltip_small_category <- tooltip_small_category_counts[1,1]
         tooltip_small_category_percent <- round(
-          tooltip_small_category_counts[1,]$Category_n / tooltip_small_category_counts[1,]$big_category_n * 100, 
+          tooltip_small_category_counts[1,]$Category_n / tooltip_small_category_counts[1,]$big_category_n * 100,
           digits=1
         )
-        
+
         # if we don't include "Not Listed", percent is of named groups.  If we do, then percent is of total
         if(length(str_subset(input$include, "include_notlisted")) == 0){
-          tooltip_small_category_percent_oftotal <- 
-            round(tooltip_small_category_counts[1,]$Category_n / named_total_count * 100, 
+          tooltip_small_category_percent_oftotal <-
+            round(tooltip_small_category_counts[1,]$Category_n / named_total_count * 100,
                   digits=1)
         } else {
-          tooltip_small_category_percent_oftotal <- 
-            round(tooltip_small_category_counts[1,]$Category_n / total_count * 100, 
+          tooltip_small_category_percent_oftotal <-
+            round(tooltip_small_category_counts[1,]$Category_n / total_count * 100,
                   digits=1)
         }}
-      
+
       if(mouse_pos == 0){ # If somehow there are missed items, do nothing, return nothing, no tooltip shown
-        
+
         # if not out of y-value range and we are filtering out "Not Listed"
-      } else if(!is.na(tooltip_small_category) && length(str_subset(input$include, "include_notlisted")) == 0) {  
+      } else if(!is.na(tooltip_small_category) && length(str_subset(input$include, "include_notlisted")) == 0) {
         wellPanel(
           style = style,
           p(HTML(paste0("<b>", tooltip_small_category,
@@ -2084,53 +2091,53 @@ server <- shinyServer(function(input,output, session)({
         # do nothing, return nothing
       }
     }
-    
-    
+
+
   })
-  
+
   ######################## Gender ###############################
-  
+
   female_count <- wmn_names_genderized |>
     filter(Gender == "female") |>
     add_count(First_name) |>
     distinct(First_name, .keep_all = TRUE) |>
-    mutate(Proportion = n/sum(n)) |> 
-    mutate(Global_prop = Gender_count/sum(Gender_count)) |> 
-    mutate(gender = "female") |> 
+    mutate(Proportion = n/sum(n)) |>
+    mutate(Global_prop = Gender_count/sum(Gender_count)) |>
+    mutate(gender = "female") |>
     select(c('First_name','n','Proportion','gender','Global_prop'))
-  
+
   male_count <- wmn_names_genderized |>
     filter(Gender == "male") |>
     add_count(First_name) |>
     distinct(First_name, .keep_all = TRUE) |>
-    mutate(Proportion = n/sum(n)) |> 
-    mutate(Global_prop = Gender_count/sum(Gender_count)) |> 
-    mutate(gender = "male") |> 
+    mutate(Proportion = n/sum(n)) |>
+    mutate(Global_prop = Gender_count/sum(Gender_count)) |>
+    mutate(gender = "male") |>
     select(c('First_name','n','Proportion','gender','Global_prop'))
-  
+
   atypical_count <- wmn_names_genderized |>
     filter(Gender == "atypical") |>
     add_count(First_name) |>
     distinct(First_name, .keep_all = TRUE) |>
-    mutate(Proportion = n/sum(n)) |> 
-    mutate(Global_prop = Gender_count/sum(Gender_count)) |> 
-    mutate(gender = "atypical") |> 
+    mutate(Proportion = n/sum(n)) |>
+    mutate(Global_prop = Gender_count/sum(Gender_count)) |>
+    mutate(gender = "atypical") |>
     select(c('First_name','n','Proportion','gender','Global_prop'))
-  
+
   # wordcloud size scale bar
   sliderValue <- reactive({
     data.frame(
       Value = as.numeric(input$decimal))
   })
-  
+
   # Get all possible combinations of gendered names from checkboxes
   # total_count <- NA
   # numtables <- 1
-  
+
   # checkboxvalues <- NULL
   observeEvent(input$gender, {
     checkboxvalues <- input$gender
-    
+
     # Assign size of tables to the genderized names based on checkboxes
     if(length(str_subset(input$gender, "gender_male")) > 0){
       numtables <- 1
@@ -2152,52 +2159,52 @@ server <- shinyServer(function(input,output, session)({
     } else {
       # nothing selected
     }
-    
+
     output$malenamesTable <- DT::renderDataTable({
       numtables <- as.integer(round(15 / numtables, 0)) # for size of tables to display
-      datatable(male_count[,-4], options = list(pageLength = numtables, 
+      datatable(male_count[,-4], options = list(pageLength = numtables,
                                                 autoWidth = TRUE,
                                                 order = list(1, 'desc')
-      ), 
+      ),
       rownames = FALSE,
       colnames = c('First Name', 'Crimes', 'Percent from WMN', 'US Proportion'),
       caption = 'Table 1: Male Names.'
-      ) |> 
+      ) |>
         formatPercentage(c('Proportion', 'Global_prop'), 2)
     })
-    
+
     output$femalenamesTable <- DT::renderDataTable({
       numtables <- round(15 / numtables, 0) # for size of tables to display
-      datatable(female_count[,-4], options = list(pageLength = numtables, 
+      datatable(female_count[,-4], options = list(pageLength = numtables,
                                                   autoWidth = TRUE,
                                                   order = list(1, 'desc')
-      ), 
+      ),
       rownames = FALSE,
       colnames = c('First Name', 'Crimes', 'Percent from WMN', 'US Proportion'),
       caption = 'Table 2: Female Names.'
-      ) |> 
+      ) |>
         formatPercentage(c('Proportion', 'Global_prop'), 2)
     })
-    
+
     output$atypicalnamesTable <- DT::renderDataTable({
       numtables <- round(15 / numtables, 0) # for size of tables to display
-      datatable(atypical_count[,-4], options = list(pageLength = numtables, 
+      datatable(atypical_count[,-4], options = list(pageLength = numtables,
                                                     autoWidth = TRUE,
                                                     order = list(1, 'desc')
-      ), 
+      ),
       rownames = FALSE,
       colnames = c('First Name', 'Crimes', 'Percent from WMN', 'US Proportion'),
       caption = 'Table 1: Uncommon Names.'
-      ) |> 
+      ) |>
         formatPercentage(c('Proportion', 'Global_prop'), 2)
     })
-    
+
   })
-  
+
   output$wordcloud <- renderWordcloud2({
-    
+
     wordslidervalue <- sliderValue()
-    
+
     # Assign colors to the genderized names based on checkboxes
     if(length(str_subset(input$gender, "gender_male")) > 0){
       total_count <- male_count
@@ -2213,7 +2220,7 @@ server <- shinyServer(function(input,output, session)({
         total_count <- rbind(total_count, atypical_count)
         basecolors = c(basecolors, "green")
       }
-      
+
     } else if(length(str_subset(input$gender, "gender_female")) > 0) {
       total_count <- female_count
       basecolors = c("purple")
@@ -2227,44 +2234,44 @@ server <- shinyServer(function(input,output, session)({
     } else {
       # nothing selected
     }
-    
+
     # sort by descending because wordcloud2 will skip names that dont fit at the end of the list
     if(!is.null(dim(total_count))){
       total_count <- total_count |>
-        arrange(desc(n)) |> 
+        arrange(desc(n)) |>
         select(c('First_name','n','Proportion','gender'))
-      
+
       colorlist = basecolors[match(total_count$gender,unique(total_count$gender)) ]
-      
+
       # create dataframe to pass to wordcloud2
       wordcloud_size = wordslidervalue$Value
       total_count2 <- data.frame(word = total_count$First_name, freq = total_count$n, color=colorlist) |>
         arrange(desc(freq))
       set.seed(1) # make semi-repeatable
       wordcloud2(data = total_count2, color=total_count2$color, size=wordcloud_size)
-      
+
     }
   })
-  
+
   output$pie1 <- renderPlot({
-    
+
     # Create Data
     piedata <- data.frame(
       Names = as.factor(c("Male", "Female", "Uncommon")),
       value = c(sum(male_count$n), sum(female_count$n), sum(atypical_count$n))
     )
-      
+
     # turn into percentages for human-readable debugging
     piedata <- piedata |>
       mutate(value = value/sum(value)*100)
-    
+
     # Compute the position of labels
     piedata <- piedata |>
       arrange(Names) |>
-      mutate(csum = rev(cumsum(rev(value))), 
+      mutate(csum = rev(cumsum(rev(value))),
              pos = value/2 + lead(csum, 1),
              pos = if_else(is.na(pos), value/2, pos))
-    
+
     # pie chart with labels outside
     ggplot(piedata, aes(x = "", y = value, fill = fct_inorder(Names))) +
       geom_bar(linewidth = 1, size = 1, color = "white", stat = "identity") + # lines between
@@ -2273,42 +2280,42 @@ server <- shinyServer(function(input,output, session)({
       scale_y_continuous(breaks = piedata$pos, labels = paste(round(piedata$value,digits=1),"%",sep="")) +
       theme(axis.ticks = element_blank(),
             axis.title = element_blank(),
-            axis.text = element_text(size = 17), 
+            axis.text = element_text(size = 17),
             legend.text = element_text(size = 17),
             legend.title = element_text(size = 17),
             plot.background = element_rect(fill = "white"),
             panel.background = element_rect(fill = "white")) +
       scale_fill_manual(values=c("purple","#555555","green"))
-    
+
   })
-  
+
   # tooltips for bar chart
-  
+
   malenum <- sum(male_count$n)
   femalenum <- sum(female_count$n)
   atypicalnum <- sum(atypical_count$n)
-  
+
   output$hover_pieinfo <- renderUI({
-    
+
     # capture location of mouse hovering after it pauses
-    hover <- input$pie_hover 
-    
+    hover <- input$pie_hover
+
     left_px <- hover$x  # for chart coordinates
     top_px <- hover$y
-    
+
     left_css_px <- hover$coords_css$x  # for position of tooltip
     top_css_px <- hover$coords_css$y
-    
+
     # create style property for tooltip
     # background color is set so tooltip is a bit transparent
     # z-index is set so we are sure are tooltip will be on top
     style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                     "left:", left_css_px+5, "px; top:", top_css_px-500+30, "px;")
-    
+
     # actual tooltip created as a "wellPanel"
     # If the cursor is out of bounds of the figure, then hover is null and no tooltip shown
     if(is.null(hover)){
-      
+
     } else {
       wellPanel(
         style = style,
@@ -2317,38 +2324,38 @@ server <- shinyServer(function(input,output, session)({
                       "<b>", atypicalnum, " uncommon</b>")))
       )
     }
-    
-    
+
+
   })
-  
+
   ######################### by State ################################
-  
+
   # sort THEN make State a factor
   sorting <- function(KFF_data, column_name, reverse=FALSE) {
     #print(paste("entered sorting function: ", column_name))
     if(reverse){
       #print("reverse")
-      KFF_data_out <- KFF_data |> 
+      KFF_data_out <- KFF_data |>
         arrange(get(column_name), Location)# |>  # this changes by sort
       #print(KFF_data_out)
     } else {
-      KFF_data_out <- KFF_data |> 
-        arrange(desc(get(column_name)), desc(Location)) #|> 
+      KFF_data_out <- KFF_data |>
+        arrange(desc(get(column_name)), desc(Location)) #|>
       #print(KFF_data_out)
     }
-    KFF_data_out <- KFF_data_out |> 
+    KFF_data_out <- KFF_data_out |>
       mutate(State=factor(State, State)) # state must be factor to display sorted
     return(KFF_data_out)
   }
-  
+
   # function to sort data to plot
-  
+
   get_labels <- function(inputStates) {
     sortlabel <- ""
     sortcol <- ""
     sortcaption1 <- ""
     sortcaption2 <- ""
-    if(inputStates == "median_income"){  
+    if(inputStates == "median_income"){
       sortlabel <- "Median Annual Income"
       sortcol <- "Median_Annual_Household_Income"
       sortcaption1 <- "Median annual household income"
@@ -2423,19 +2430,20 @@ server <- shinyServer(function(input,output, session)({
       sortlabel <- "Percent Who Voted"
       sortcaption1 <- "Number of voters as a share of the voter population"
       sortcaption2 <- "Data for November 2022, number is decimal (multiply by 100 for a percentage)"
-    } 
-    
+    }
+
     return(list(label=sortlabel, col=sortcol, caption1=sortcaption1, caption2=sortcaption2))
   }
-  
+
   output$byState <- renderPlot({
-    
+
     # get the labels for sorting
+    #sortinfo <- get_labels("pct_males")
     sortinfo <- get_labels(input$states)
-    
+
     # sort the data for display
     KFF_data_sort <- sorting(KFF_data, sortinfo$col)
-    
+
     # regression model
     if(sortinfo$col != "crime_percent_from_expected"){ # to avoid the warning for lm when perfect line
       state.lm = lm(crime_percent_from_expected ~ get(sortinfo$col), data=KFF_data_sort)
@@ -2451,30 +2459,30 @@ server <- shinyServer(function(input,output, session)({
       state_m <- 0
       state_b <- NULL
     }
-    
+
     if(sortinfo$col == "state_index" || state_m < 0){  # states get reverse sorting
       KFF_data_sort <- sorting(KFF_data, sortinfo$col, reverse=TRUE)
-    } 
-    
+    }
+
     # plot
     lollipop <- ggplot(KFF_data_sort, aes(x=State, y=crime_percent_from_expected)) +
-      geom_point(aes(color=mycolor), size=2) + 
+      geom_point(aes(color=mycolor), size=2) +
       geom_segment(aes(x=State, xend=State, y=0, yend=crime_percent_from_expected, color=mycolor), linewidth=2, alpha=0.9) +
       theme_light() +
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
-    
+      )
+
     # add titles
-    lollipop <- lollipop + 
+    lollipop <- lollipop +
       labs(
         title = "Crimes against children by State",
         subtitle = paste("Sorted by: ", sortinfo$label, sep=""),
-        x = "", 
+        x = "",
         y = "Percent difference from expected"
       )
-    
+
     lollipop <- lollipop + theme(
       legend.position="none",  # remove legend because tooltips will suffice
       panel.background = element_rect(fill = "white", colour = NA),
@@ -2495,21 +2503,21 @@ server <- shinyServer(function(input,output, session)({
         margin = margin(b = 15/2)
       )
     )
-    
+
     if(sortinfo$col != "crime_percent_from_expected"){
       if(state_p <= 0.05){
         if(state_m > 0){
           addtext = "has a <b><u>significant</u> positive correlation</b> to sex crimes against children (the higher the value, the higher number of sex crimes)."
         } else if(state_m < 0){
           addtext = "has a <b><u>significant</u> negative correlation</b> to sex crimes against children (the higher the value, the lower number of sex crimes)."
-        } 
+        }
       } else {
         addtext = "does <b><u>not</u></b> have a correlation to sex crimes against children."
       }
     } else {
       addtext = ""
     }
-    
+
     # put text below the lollipop chart to help describe
     output$statetext1 <- renderText({
       paste(sortinfo$caption1, addtext, sep=" ")
@@ -2517,7 +2525,7 @@ server <- shinyServer(function(input,output, session)({
     output$statetext2 <- renderText({
       sortinfo$caption2
     })
-    
+
     if(sortinfo$col != "crime_percent_from_expected"){
       textlabel <- paste("p-value = ", signif(state_p, digits=3),"\n", "adjusted r2 = ", round(state_ar, digits=3), sep="")
       if(state_p < 0.05){
@@ -2525,38 +2533,38 @@ server <- shinyServer(function(input,output, session)({
       } else {
         lollipop <- lollipop + ggplot2::annotate("text", x=Inf, y = Inf, label = textlabel, size = 8, vjust=1, hjust=1, color="black")
       }
-    } 
-    
+    }
+
     lollipop
-    
+
   })
-  
+
   output$scatterbyState <- renderPlot({
-    
+
     sortinfo <- get_labels(input$states)
     KFF_data_sort <- sorting(KFF_data, sortinfo$col, reverse=TRUE)
-    
+
     # plot
     statescatter <- ggplot(KFF_data_sort, aes(x=get(sortinfo$col), y=crime_percent_from_expected)) +
-      geom_point(aes(color="black"), size=1) + 
+      geom_point(aes(color="black"), size=1) +
       theme_light() +
       theme(
         legend.position = "none",
         panel.border = element_blank(),
-      ) 
-    
-    statescatter <- statescatter +                                     
+      )
+
+    statescatter <- statescatter +
       stat_smooth(method = "lm",
                   formula = y ~ x,
                   geom = "smooth")
-    
+
     # add titles
-    statescatter <- statescatter + 
+    statescatter <- statescatter +
       labs(
-        x = sortinfo$label, 
+        x = sortinfo$label,
         y = "Percent difference from expected"
       )
-    
+
     statescatter <- statescatter + theme(
       legend.position="none",  # remove legend because tooltips will suffice
       panel.background = element_rect(fill = "white", colour = "white"),
@@ -2570,58 +2578,78 @@ server <- shinyServer(function(input,output, session)({
       #aspect.ratio=2/3,
       plot.margin = unit(c(0, 0, 0, 0),"cm")
     )
-    
+
     # don't plot the 1:1 figure
     if(sortinfo$col != "crime_percent_from_expected"){
       statescatter
     }
-    
+
   })
-  
+
   output$q_q <- renderPlot({
-    
+
     sortinfo <- get_labels(input$states)
-    x <- KFF_data |> 
+    x <- KFF_data |>
       pull(sortinfo$col)
-    
+
+    normal_test <- shapiro.test(x)
+
     qqnorm(x, pch = 1, frame = FALSE)
     qqline(x, col = "steelblue", lwd = 2)
-    
+
   })
-  
-  # tooltips for state lollipop chart
-  
-  output$hover_stateinfo <- renderUI({
-    
+
+  output$shapiro <- renderText({
+
     sortinfo <- get_labels(input$states)
-    
+    x <- KFF_data |>
+      pull(sortinfo$col)
+
+    normal_test <- shapiro.test(x)
+
+    if(normal_test[2] > 0.05){
+      paste("Data are not significantly different from normally distributed, Shapiro-Wilk normality test: p = ", round(as.numeric(normal_test[2]), 2), sep="")
+    } else if(round(as.numeric(normal_test[2]), 2) == 0){
+      paste("Data are NOT normally distributed! Shapiro-Wilk normality test: p < 0.01", sep="")
+    } else if(round(as.numeric(normal_test[2]), 2) > 0){
+      paste("Data are NOT normally distributed! Shapiro-Wilk normality test: p = ", round(as.numeric(normal_test[2]), 2), sep="")
+    }
+
+  })
+
+  # tooltips for state lollipop chart
+
+  output$hover_stateinfo <- renderUI({
+
+    sortinfo <- get_labels(input$states)
+
     # prepare tool tips.
-    if(sortinfo$col == "crime_percent_from_expected" || 
+    if(sortinfo$col == "crime_percent_from_expected" ||
        sortinfo$col == "Male" ||
        sortinfo$col == "Party" ||
-       sortinfo$col == "FPL_lessthan_100" || 
-       sortinfo$col == "Per_Capita_State_Spending") 
+       sortinfo$col == "FPL_lessthan_100" ||
+       sortinfo$col == "Per_Capita_State_Spending")
     {  # sorted forwards
       KFF_data_sort <- sorting(KFF_data, sortinfo$col)
     } else {
       KFF_data_sort <- sorting(KFF_data, sortinfo$col, reverse=TRUE)
     }
-    
+
     tooltipStateList <- KFF_data_sort$Location
     tooltipExpected <- KFF_data_sort$expected_crime
     tooltipObserved <- KFF_data_sort$State_n
-    
+
     toolinfo <- KFF_data_sort[sortinfo$col]
-    
+
     # capture location of mouse hovering after it pauses
-    hover <- input$state_hover 
-    
+    hover <- input$state_hover
+
     left_px <- hover$x  # for chart coordinates
     top_px <- hover$y
-    
+
     left_css_px <- hover$coords_css$x  # for position of tooltip
     top_css_px <- hover$coords_css$y
-    
+
     # if mouse is on left of graph, put tool tips to right.  if on right put on left
     if(!is.null(hover)){
       if(left_px < 25){
@@ -2634,21 +2662,21 @@ server <- shinyServer(function(input,output, session)({
     }
     # actual tooltip created as a "wellPanel"
     # If the cursor is out of bounds of the figure, then hover is null and no tooltip shown
-    
+
     mouseposcursor <- round(as.numeric(left_px), digits = 2)
     mousepos <- round(as.numeric(left_px), digits = 0)
-    
+
     multiplier <- 1
     trailingsymbol <- ""
     precedingsymbol <- ""
-    
+
     # those categories that need to be multiplied by 100 for a percent
     multstring <- c("Male","Adults_with_No_Children","Individuals_who_Voted","FPL_lessthan_100","Part_Time_Workers","Unemployed")
     if(any(str_detect(multstring, sortinfo$col))){
       multiplier <- 100
       trailingsymbol <- "%"
-    } 
-    
+    }
+
     millionstring <- c("Gross_State_Product_millions","PCSpending_Elementary_Secondary_Education","PCSpending_Assistance","PCSpending_Corrections")
     if(any(str_detect(millionstring, sortinfo$col))){
       trailingsymbol <- " M"
@@ -2656,28 +2684,28 @@ server <- shinyServer(function(input,output, session)({
     } else if(sortinfo$col == "Median_Annual_Household_Income"){
       precedingsymbol <- "$"
     }
-    
+
     # special sort depending on category
-    if(sortinfo$col == "Male" || 
-       #sortinfo$col == "Party" || 
-       sortinfo$col == "state_index" || 
-       sortinfo$col == "FPL_lessthan_100" || 
-       sortinfo$col == "Per_Capita_State_Spending") 
+    if(sortinfo$col == "Male" ||
+       #sortinfo$col == "Party" ||
+       sortinfo$col == "state_index" ||
+       sortinfo$col == "FPL_lessthan_100" ||
+       sortinfo$col == "Per_Capita_State_Spending")
     {  # sorted forwards
       KFF_data_sort <- sorting(KFF_data, sortinfo$col)
     } else {
       KFF_data_sort <- sorting(KFF_data, sortinfo$col, reverse=TRUE)
     }
-    
+
     tooltiptextLine1 <- paste("For <b>", tooltipStateList[mousepos], "</b><br />", sep="")
     tooltiptextLine2 <- paste("with ",sortinfo$label, " at ",precedingsymbol, format(round(toolinfo[mousepos,]*multiplier,digits=2),big.mark=","),trailingsymbol,"<br />", sep="")
     tooltiptextLine3 <- paste("Expected crimes: ", round(tooltipExpected[mousepos],digits=1),"<br />", sep="")
     tooltiptextLine4 <- paste("Observed crimes: ", tooltipObserved[mousepos],"<br />",sep="")
-    
+
     # special removals or modifications for tooltips depending on category
-    if(sortinfo$col == "crime_percent_from_expected" || 
-       sortinfo$col == "state_index") 
-    {  
+    if(sortinfo$col == "crime_percent_from_expected" ||
+       sortinfo$col == "state_index")
+    {
       tooltiptextLine2 = ""
     } else if(sortinfo$col == "Party" && !is.null(hover)){
       if(toolinfo[mousepos,] == 0){
@@ -2688,9 +2716,9 @@ server <- shinyServer(function(input,output, session)({
         tooltiptextLine2 <- paste("with ",sortinfo$label, " at ", abs(round(toolinfo[mousepos,] * 100, digits = 0)) / 2 + 50 ,"% Democrat<br />", sep="")
       }
     }
-    
+
     tooltiptext <- HTML(paste(tooltiptextLine1, tooltiptextLine2, tooltiptextLine3, tooltiptextLine4, sep=""))
-    
+
     if(is.null(hover)){
       # do nothing
     } else if(mouseposcursor %% 1 < 0.3 || mouseposcursor %% 1 > 0.7) { # if close to a point
@@ -2699,33 +2727,33 @@ server <- shinyServer(function(input,output, session)({
         p(tooltiptext)
       )
     }
-    
-    
+
+
   })
-  
+
   ######################### Crime and Punishment ################################
-  
+
   # # Turn state names into two-letter codes to compare with WMN data
-  statecodes <- state_crime$State 
+  statecodes <- state_crime$State
   statecodes <- state.abb[match(statecodes,state.name)]
   state_crime <- state_crime |>
     mutate(ST = statecodes)
   state_punishment <- state_punishment |>
     mutate(ST = statecodes)
-  
+
   # combine wmn data with state crime data
-  wmn_data_crime <- inner_join(KFF_data, state_crime, by = c("State" = "ST")) |> 
-    rename(State_long = State.y) |> 
+  wmn_data_crime <- inner_join(KFF_data, state_crime, by = c("State" = "ST")) |>
+    rename(State_long = State.y) |>
     relocate(State_long, .after = State)
-  
+
   # combine wmn + crime data with punishment data
-  wmn_data_crime_punishment <- inner_join(wmn_data_crime, state_punishment, by = c("State" = "ST")) |> 
+  wmn_data_crime_punishment <- inner_join(wmn_data_crime, state_punishment, by = c("State" = "ST")) |>
     select(!State.y)
-  
+
   ############################## subset from inputs for PCA #####################
-  
+
   betterNames <- function(subsetdata_noexp) {
-    namesofcrimes <- names(subsetdata_noexp) |> 
+    namesofcrimes <- names(subsetdata_noexp) |>
       str_replace_all(c("Burglary_rate"="Burglary",
                         "Larceny_rate"="Larceny",
                         "Motor_rate"="Motor Vehicles",
@@ -2744,30 +2772,30 @@ server <- shinyServer(function(input,output, session)({
       ))
     return(namesofcrimes)
   }
-  
+
   output$pcaplot <- renderPlot({
-    
+
     # get the checkbox info from both groups
     # subsets <- c("Burglary_rate", "Larceny_rate", "Motor_rate")
     subsets <- paste(input$crime, input$punishment, sep=", ", collapse = ", ")
     subsets <- unlist(str_split(subsets, ", "))
-    
+
     # subset the data for analysis, including crime expected and state (but won't be used)
-    subsetdata <- wmn_data_crime_punishment |> 
+    subsetdata <- wmn_data_crime_punishment |>
       select(any_of(subsets), crime_percent_from_expected, State)
-    
+
     # do the PCA on the subset, not including the state (or the crime frequency if not included)
     if(input$include_exp){
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-State)
     } else {
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-crime_percent_from_expected, -State)
     }
-    
+
     # adjust loading labels
     crimechoiceNames <- betterNames(subsetdata_noexp)
-    
+
     # NO output for PCA with dimensions less than 2
     if(dim(subsetdata_noexp)[2] <= 1){
       output$pcatext <- renderText({
@@ -2780,25 +2808,25 @@ server <- shinyServer(function(input,output, session)({
       output$pcatext <- renderText({
         NULL
       })
-      
+
       wmn_data_crime_punishment.pca <- prcomp(subsetdata_noexp,
                                               center = TRUE,
                                               scale. = TRUE)
-      
+
       pcainfo <- summary(wmn_data_crime_punishment.pca)
-      
+
       # put text below the PCA to help describe
       output$pcatext1 <- renderText({
         paste("The two principal components (this graph) explain ", round(pcainfo$importance[3,2]*100, 1),"% of the variation in the data.", sep="")
       })
-      
+
       wmn_data_crime_punishment.pca.plot <- autoplot(wmn_data_crime_punishment.pca,
                                                      data = subsetdata,
-                                                     label = TRUE, 
+                                                     label = TRUE,
                                                      label.label = 'State',
                                                      label.size = 4.5,
                                                      shape = FALSE, # no points
-                                                     loadings.label = TRUE, 
+                                                     loadings.label = TRUE,
                                                      loadings.label.repel = T,
                                                      loadings.label.color="black",
                                                      loadings.label.size = 6,
@@ -2812,20 +2840,20 @@ server <- shinyServer(function(input,output, session)({
           legend.title = element_text(size=15),
           legend.text = element_text(size=15),
           panel.border = element_blank()
-        ) 
-      
+        )
+
       # # center the plot
       # xscales <- max(abs(ggplot_build(wmn_data_crime_punishment.pca.plot)$layout$panel_params[[1]]$x.range))
       # yscales <- max(abs(ggplot_build(wmn_data_crime_punishment.pca.plot)$layout$panel_params[[1]]$y.range))
-      
+
       # add titles
       wmn_data_crime_punishment.pca.plot <- wmn_data_crime_punishment.pca.plot +
         labs(
           title = "Principal Components Plot",
           subtitle = "How State Crime and Punishment Relates to Sex Crimes Against Children",
         ) #+
-        #xlim(-xscales, xscales) + ylim(-yscales, yscales) 
-      
+        #xlim(-xscales, xscales) + ylim(-yscales, yscales)
+
       # make theme prettier
       wmn_data_crime_punishment.pca.plot <- wmn_data_crime_punishment.pca.plot +
         theme(
@@ -2847,37 +2875,37 @@ server <- shinyServer(function(input,output, session)({
             margin = margin(b = 15/2)
           )
         )
-      
+
       # show the plot
       wmn_data_crime_punishment.pca.plot
 
     }
 
   })
-  
+
   output$pcacontributionspine <- renderPlot({
-    
+
     # get the checkbox info from both groups
     # subsets <- c("Burglary_rate", "Larceny_rate", "Motor_rate")
     subsets <- paste(input$crime, input$punishment, sep=", ", collapse = ", ")
     subsets <- unlist(str_split(subsets, ", "))
-    
+
     # subset the data for analysis, including crime expected and state (but won't be used)
-    subsetdata <- wmn_data_crime_punishment |> 
+    subsetdata <- wmn_data_crime_punishment |>
       select(any_of(subsets), crime_percent_from_expected, State)
-    
+
     # do the PCA on the subset, not including the state (or the crime frequency if not included)
     if(input$include_exp){
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-State)
     } else {
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-crime_percent_from_expected, -State)
     }
-    
+
     # adjust loading labels
     crimechoiceNames <- betterNames(subsetdata_noexp)
-    
+
     # NO output for mosaic or text with dimensions less than 2
     if(dim(subsetdata_noexp)[2] <= 1){
       output$pcatext2 <- renderText({
@@ -2887,7 +2915,7 @@ server <- shinyServer(function(input,output, session)({
       output$pcatext2 <- renderText({
         HTML("The first two Principal Components (on the above plot) always 'explain' the most <u>variation</u> in the data (which may or may not be interesting).<br /><br />The plot to the right shows the contributions of the data to the first two components (PC1 and PC2; The variable names are on the left but do not line up with the bars, except in their order).<br /><br />To interpret, if a variable is not well-represented in a component, then it is not well correlated with the other variables in that component.<br /><br />For example, looking at Burglary, Larceny, and State Prison population with the Percent Difference from Expected Crime, the Expected Crime values are nearly alone in PC2, indicating that there is not much correlation to Burglary, Larceny, and State Prison population.")
       })
-      
+
       wmn_data_crime_punishment.pca <- prcomp(subsetdata_noexp,
                                               center = TRUE,
                                               scale. = TRUE)
@@ -2901,44 +2929,44 @@ server <- shinyServer(function(input,output, session)({
       } else {
         colorlist <- pal(dim(t(pcacontributions$contrib[,1:2]))[2])
       }
-      
+
       par(las = 2, mar = c(5, 7, 5, 5))
       spineplot(t(pcacontributions$contrib[,1:2]),
                 border = c("#FFFFFF"),
                 col=colorlist,
                 main = "Contributions to the first two Principal Components", xlab = "", ylab = "",
-                xaxlabels = c("PC 1", "PC 2"), 
+                xaxlabels = c("PC 1", "PC 2"),
                 yaxlabels = crimechoiceNames)
-      
+
     }
   })
-  
-  ############################## subset from inputs for KMeans #####################  
-  
+
+  ############################## subset from inputs for KMeans #####################
+
   output$kmeansplot <- renderPlot({
-    
+
     # get the checkbox info from both groups
     subsets <- paste(input$crime, input$punishment, sep=", ", collapse = ", ")
     subsets <- unlist(str_split(subsets, ", "))
-    
+
     # subset the data for analysis, including crime expected and state (but won't be used)
-    subsetdata <- wmn_data_crime_punishment |> 
+    subsetdata <- wmn_data_crime_punishment |>
       select(any_of(subsets), crime_percent_from_expected, State)
-    
+
     # do the PCA/kmeans on the subset, not including the state (or the crime frequency if not included)
     if(input$include_exp){
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-State)
     } else {
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-crime_percent_from_expected, -State)
     }
-    
+
     # # adjust loading labels
     # crimechoiceNames <- betterNames(subsetdata_noexp)
-    
+
     kmeansnumber <- as.integer(input$kmeansnum)
-    
+
     # NO output for PCA with dimensions less than 2
     if(dim(subsetdata_noexp)[2] <= 1){
       output$kmeanstext <- renderText({
@@ -2951,18 +2979,18 @@ server <- shinyServer(function(input,output, session)({
       output$kmeanstext <- renderText({
         NULL
       })
-      
+
       output$kmeanstext1 <- renderText({
         paste("Someting here about the groups")
       })
-    
+
     set.seed(42)
     k2 <- kmeans(subsetdata_noexp, centers = kmeansnumber, nstart=25, iter.max=500)
-      
-    kmeansplot <- autoplot(k2, 
-                           data = subsetdata, 
+
+    kmeansplot <- autoplot(k2,
+                           data = subsetdata,
                            frame = TRUE,
-                           label = TRUE, 
+                           label = TRUE,
                            label.label = 'State',
                            label.size = 4.5,
                            shape = FALSE) +
@@ -2972,16 +3000,16 @@ server <- shinyServer(function(input,output, session)({
         legend.title = element_text(size=18),
         legend.text = element_text(size=18),
         panel.border = element_blank()
-      ) 
-      
-    
+      )
+
+
     # add titles
     kmeansplot <- kmeansplot +
       labs(
         title = "K-Means Plot",
         subtitle = "How State Crime and Punishment Are Grouped with Sex Crimes Against Children",
       )
-    
+
     # make theme prettier
     kmeansplot <- kmeansplot +
       theme(
@@ -3003,37 +3031,37 @@ server <- shinyServer(function(input,output, session)({
           margin = margin(b = 15/2)
         )
       )
-    
+
     # show the plot
     kmeansplot
     }
-    
-  })  
-  
-  
+
+  })
+
+
   output$kmeansSilhouette <- renderPlot({
-    
+
     # get the checkbox info from both groups
     # subsets <- c("Burglary_rate", "Larceny_rate", "Motor_rate")
     subsets <- paste(input$crime, input$punishment, sep=", ", collapse = ", ")
     subsets <- unlist(str_split(subsets, ", "))
-    
+
     # subset the data for analysis, including crime expected and state (but won't be used)
-    subsetdata <- wmn_data_crime_punishment |> 
+    subsetdata <- wmn_data_crime_punishment |>
       select(any_of(subsets), crime_percent_from_expected, State)
-    
+
     # do the PCA on the subset, not including the state (or the crime frequency if not included)
     if(input$include_exp){
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-State)
     } else {
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-crime_percent_from_expected, -State)
     }
-    
+
     #kmeansnumber <- 3
     kmeansnumber <- as.integer(input$kmeansnum)
-    
+
     # NO output for mosaic or text with dimensions less than 2
     if(dim(subsetdata_noexp)[2] <= 1){
       output$kmeanstext2 <- renderText({
@@ -3041,12 +3069,12 @@ server <- shinyServer(function(input,output, session)({
       })
       # send null to figure
       NULL
-      
+
     } else {
       output$kmeanstext2 <- renderText({
         HTML("The graph to the right in an Average Silhouette that measures the quality of a clustering. The optimal number of clusters is the one that <b>maximizes</b> the average silhouette (max of 1.0) over a range of possible cluster numbers.<br /><br />You should try that maximum value in the 'Number of Groups for K-Means'.")
       })
-      
+
       # function to calculate how many clusters are optimal
       silhouette_score <- function(k){
         set.seed(42)
@@ -3054,80 +3082,80 @@ server <- shinyServer(function(input,output, session)({
         ss <- silhouette(km$cluster, dist(subsetdata_noexp))
         mean(ss[, 3])
       }
-      
+
       # iterate
       k <- 2:7
       avg_sil <- sapply(k, silhouette_score)
-      
-      # plot the silhouette 
+
+      # plot the silhouette
       plot(k, type='b', avg_sil, xlab='Number of clusters', ylab='Average Silhouette Scores', frame=FALSE)
-      
+
     }
   })
-  
+
   output$kmeansTable <- DT::renderDataTable({
-    
+
     # get the checkbox info from both groups
     # subsets <- c("Burglary_rate", "Larceny_rate", "Motor_rate")
     subsets <- paste(input$crime, input$punishment, sep=", ", collapse = ", ")
     subsets <- unlist(str_split(subsets, ", "))
-    
+
     # subset the data for analysis, including crime expected and state (but won't be used)
-    subsetdata <- wmn_data_crime_punishment |> 
+    subsetdata <- wmn_data_crime_punishment |>
       select(any_of(subsets), crime_percent_from_expected, State)
-    
+
     # do the PCA on the subset, not including the state (or the crime frequency if not included)
     if(input$include_exp){
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-State)
     } else {
-      subsetdata_noexp <- subsetdata |> 
+      subsetdata_noexp <- subsetdata |>
         select(-crime_percent_from_expected, -State)
     }
-    
+
     #kmeansnumber <- 3
     kmeansnumber <- as.integer(input$kmeansnum)
-    
+
     # NO output for mosaic or text with dimensions less than 2
     if(dim(subsetdata_noexp)[2] <= 1){
       output$kmeanstext1 <- renderText({
         NULL
       })
-      
+
       # send data table null
       NULL
     } else {
       output$kmeanstext1 <- renderText({
         HTML("Examine the table below. It shows the mean values for each variable.  Look across the rows (clusters) to get a feeling for what each cluster 'represents' and how each cluser is different or the same as the others.")
       })
-      
+
       k2 <- kmeans(subsetdata_noexp, centers = kmeansnumber)
-      
+
       # Extract the clusters and add to our initial data to do some descriptive statistics at the cluster level:
-      meangroups <- subsetdata_noexp |> 
-        mutate(Cluster = k2$cluster) |> 
-        group_by(Cluster) |> 
-        summarise_all("mean") |> 
-        mutate(across(is.numeric, round, digits = 1))
-      
+      meangroups <- subsetdata_noexp |>
+        mutate(Cluster = k2$cluster) |>
+        group_by(Cluster) |>
+        summarise_all("mean") |>
+        mutate(across(where(is.numeric), round, digits = 1))
+
       # adjust loading labels
       crimechoiceNames <- betterNames(subsetdata_noexp)
       names(meangroups)[2:length(names(meangroups))] <- crimechoiceNames
-      
+
       # display the table
       datatable(meangroups, options = list(autoWidth = TRUE,
                                            order = list(0, 'asc'),
                                            ordering = FALSE,
                                            dom = 't'
-      ), 
+      ),
       rownames = FALSE,
       colnames = names(meangroups)
-      ) 
-      
+      )
+
     }
   })
-      
-  
+
+
 }))
 
 
