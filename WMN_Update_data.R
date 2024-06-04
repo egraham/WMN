@@ -274,6 +274,15 @@ for (rowindex in 1:dim(wmn_names_genderized)[1]) {  # march through the data set
 
 summary(wmn_names_genderized)
 
+# create updated generized name list after the call to the web service
+wmn_genderized_list <- wmn_names_genderized |>
+  distinct(First_name, Gender, Gender_count, Gender_probability) |> # get all genders that are unique
+  group_by(First_name) |> # remove the ones with the smallest Gender_count (older entries)
+  top_n(1, Gender_count) |>
+  arrange(First_name)
+
+write_csv(wmn_genderized_list, file="GenderedNamesList.csv")
+
 # Save the updated data sets back to DropBox
 wmn_data_previous <- wmn_data_current
 
@@ -295,7 +304,8 @@ write_csv(wmn_names_genderized, file="wmn_names_genderized.csv")
 
 ## Update of Accuracy of predictions ##
 ## Use daily data from the second week in July, when sampling changed, to one month ago
-daterange_start <- seq(ymd("2023-07-14"), as.Date(now())-days(30), by=1)
+#daterange_start <- seq(ymd("2023-07-14"), as.Date(now())-days(30), by=1)
+daterange_start <- seq(ymd("2023-07-14"), ymd("2024-05-23"), by=1)
 
 # fill in zeros for days with no crimes, create a df ready for time series
 eventsperday <- wmn_data_previous |>
@@ -315,7 +325,8 @@ linear_error <- tibble(date=as.Date(x = integer(0), origin = "2000-01-01"), actu
 
 for(i in daterange_start){
   numEventsperday_reg <- eventsperday |>
-    filter(Date >= as.Date(i) & Date <= as.Date(i) + days(sumduration))
+    filter(Date > ymd("2023-07-14"))
+    #filter(Date >= as.Date(i) & Date <= as.Date(i) + days(sumduration))
 
   cumsum30.lm = lm(cum_sum ~ Date, data=numEventsperday_reg)
   # slope is crimes per day the prediction
@@ -355,104 +366,104 @@ if(linear_t$estimate > 0){
 linear_subt <- paste("Mean error is: ",round(linear_t$estimate,3), error_sign, sep="")
 
 # Basic jitter box plot
-lin_err_plot <- ggplot(linear_error, aes(x = "", y = lin_diffcrimes)) +
-  geom_boxplot(outlier.shape = NA) +
-  #stat_summary(fun = mean, geom = "errorbar", aes(xmax = 5, xmin = -5), width = .75, linetype = "dashed") +
-  #stat_summary(fun=mean, geom='point', shape=20, size=8, col="green") +
-  geom_jitter(data=linear_over_predict, col="red") +
-  geom_jitter(data=linear_under_predict, col="blue") +
-  geom_jitter(data=linear_well_predict, col="black") +
-
-  #
-theme_light() +
-  theme(
-    legend.position = "none",
-    panel.border = element_blank(),
-  )
-
-# add titles
-lin_err_plot <- lin_err_plot +
-  labs(
-    title = "Errors of Linear Model Estimates",
-    subtitle = linear_subt,
-    y = "Predicted minus Actual",
-    x = ""
-  )
-
-# make theme prettier
-lin_err_plot <- lin_err_plot + theme(
-  legend.position="none",  # remove legend because tooltips will suffice
-  panel.background = element_rect(fill = "white", colour = "white"),
-  panel.grid = element_line(colour = "grey92"),
-  panel.grid.minor = element_line(linewidth = rel(1)),
-  axis.text.x = element_text(size=16),
-  axis.text.y = element_text(size=16),
-  axis.title.y = element_text(size=17),
-  axis.title.x = element_text(size=17),
-  plot.title = element_text( # font size "large"
-    size = 20,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  ),
-  plot.subtitle = element_text( # font size "regular"
-    size = 15,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  )
-)
-
-# show the figure
-lin_err_plot
+# lin_err_plot <- ggplot(linear_error, aes(x = "", y = lin_diffcrimes)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   #stat_summary(fun = mean, geom = "errorbar", aes(xmax = 5, xmin = -5), width = .75, linetype = "dashed") +
+#   #stat_summary(fun=mean, geom='point', shape=20, size=8, col="green") +
+#   geom_jitter(data=linear_over_predict, col="red") +
+#   geom_jitter(data=linear_under_predict, col="blue") +
+#   geom_jitter(data=linear_well_predict, col="black") +
+#
+#   #
+# theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   )
+#
+# # add titles
+# lin_err_plot <- lin_err_plot +
+#   labs(
+#     title = "Errors of Linear Model Estimates",
+#     subtitle = linear_subt,
+#     y = "Predicted minus Actual",
+#     x = ""
+#   )
+#
+# # make theme prettier
+# lin_err_plot <- lin_err_plot + theme(
+#   legend.position="none",  # remove legend because tooltips will suffice
+#   panel.background = element_rect(fill = "white", colour = "white"),
+#   panel.grid = element_line(colour = "grey92"),
+#   panel.grid.minor = element_line(linewidth = rel(1)),
+#   axis.text.x = element_text(size=16),
+#   axis.text.y = element_text(size=16),
+#   axis.title.y = element_text(size=17),
+#   axis.title.x = element_text(size=17),
+#   plot.title = element_text( # font size "large"
+#     size = 20,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   ),
+#   plot.subtitle = element_text( # font size "regular"
+#     size = 15,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   )
+# )
+#
+# # show the figure
+# lin_err_plot
 
 ###### as example only, below ###########
 # for plotting line plot
 
-lin_err_lineplot <- ggplot(linear_error, aes(x = date, y = lin_diffcrimes)) +
-  geom_line() +
-  geom_point(data=linear_over_predict, aes(x = date, y = lin_diffcrimes), col="red") +
-  geom_point(data=linear_under_predict, aes(x = date, y = lin_diffcrimes), col="blue") +
-  geom_point(data=linear_well_predict, aes(x = date, y = lin_diffcrimes), col="black") +
-  geom_hline(yintercept = 0) +
-  #coord_flip() +
-  theme_light() +
-  theme(
-    legend.position = "none",
-    panel.border = element_blank(),
-  )
-
-# add titles
-lin_err_lineplot <- lin_err_lineplot +
-  labs(
-    title = "Errors of Linear Model Estimates",
-    subtitle = "Error per date",
-    y = "Predicted minus Actual",
-    x = "Date"
-  )
-
-# make theme prettier
-lin_err_lineplot <- lin_err_lineplot + theme(
-  legend.position="none",  # remove legend because tooltips will suffice
-  panel.background = element_rect(fill = "white", colour = "white"),
-  panel.grid = element_line(colour = "grey92"),
-  panel.grid.minor = element_line(linewidth = rel(1)),
-  axis.text.x = element_text(size=16),
-  axis.text.y = element_text(size=16),
-  axis.title.y = element_text(size=17),
-  axis.title.x = element_text(size=17),
-  plot.title = element_text( # font size "large"
-    size = 20,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  ),
-  plot.subtitle = element_text( # font size "regular"
-    size = 15,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  )
-)
-
-# show the figure
-lin_err_lineplot
+# lin_err_lineplot <- ggplot(linear_error, aes(x = date, y = lin_diffcrimes)) +
+#   geom_line() +
+#   geom_point(data=linear_over_predict, aes(x = date, y = lin_diffcrimes), col="red") +
+#   geom_point(data=linear_under_predict, aes(x = date, y = lin_diffcrimes), col="blue") +
+#   geom_point(data=linear_well_predict, aes(x = date, y = lin_diffcrimes), col="black") +
+#   geom_hline(yintercept = 0) +
+#   #coord_flip() +
+#   theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   )
+#
+# # add titles
+# lin_err_lineplot <- lin_err_lineplot +
+#   labs(
+#     title = "Errors of Linear Model Estimates",
+#     subtitle = "Error per date",
+#     y = "Predicted minus Actual",
+#     x = "Date"
+#   )
+#
+# # make theme prettier
+# lin_err_lineplot <- lin_err_lineplot + theme(
+#   legend.position="none",  # remove legend because tooltips will suffice
+#   panel.background = element_rect(fill = "white", colour = "white"),
+#   panel.grid = element_line(colour = "grey92"),
+#   panel.grid.minor = element_line(linewidth = rel(1)),
+#   axis.text.x = element_text(size=16),
+#   axis.text.y = element_text(size=16),
+#   axis.title.y = element_text(size=17),
+#   axis.title.x = element_text(size=17),
+#   plot.title = element_text( # font size "large"
+#     size = 20,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   ),
+#   plot.subtitle = element_text( # font size "regular"
+#     size = 15,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   )
+# )
+#
+# # show the figure
+# lin_err_lineplot
 
 
 ####################################################################
@@ -482,7 +493,7 @@ for(i in daterange_start){
       ets = ETS(value)
     )
 
-  # use model to forecast 10 days into future, including today
+  # use model to forecast 1 days into future
   fc <- fit |>
     forecast(h = 1)
 
@@ -490,13 +501,14 @@ for(i in daterange_start){
 
   num_crimes_day <- eventsperday$perday[eventsperday$Date == as.Date(i) + days(sumduration)]
 
-  print(paste("future data:", futuredata$crimes, "num_crimes_day:", num_crimes_day, sep=" "))
+  print(paste(futuredata$date, "future data:", futuredata$crimes, "num_crimes_day:", num_crimes_day, sep=" "))
 
   # numeric zero if no crimes that day
   if(length(futuredata$crimes)>0 & length(num_crimes_day)>0){
     # predicted minus actual, so if + then over-predicting
     ets_error <- ets_error |>
-      add_row(date = as.Date(i) + days(sumduration), actual = num_crimes_day, ets_predicted = futuredata$crimes, ets_diffcrimes = futuredata$crimes - num_crimes_day)
+      add_row(date = as.Date(i) + days(sumduration), actual = num_crimes_day, ets_predicted = futuredata$crimes,
+              ets_diffcrimes = futuredata$crimes - num_crimes_day)
   } else {
     print("missing data")
   }
@@ -529,7 +541,7 @@ if(ets_t$estimate > 0){
 
 ets_subt <- paste("Mean error is: ",round(ets_t$estimate,3), ets_error_sign, sep="")
 
-# Basic jitter box plot
+#Basic jitter box plot
 ets_err_plot <- ggplot(ets_error, aes(x = "", y = ets_diffcrimes)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter(data=ets_over_predict, col="red") +
@@ -649,6 +661,9 @@ d_error <- tibble(date=as.Date(x = integer(0), origin = "2000-01-01"), actual=nu
 for(i in daterange_start){
   numEventsperday_d_error <- eventsperday_d |>
     filter(Date >= as.Date(i) & Date < as.Date(i) + days(sumduration))
+  if(dim(numEventsperday_d_error)[1]>25){
+
+
 
 
   tsdata = ts(numEventsperday_d_error$perday[startindex:length(numEventsperday_d_error$perday)], freq=7) ## “seasonal” window of 7 days
@@ -670,7 +685,7 @@ for(i in daterange_start){
     # predicted minus actual, so if + then over-predicting
     d_error <- d_error |>
       add_row(date = as.Date(i) + days(sumduration), actual = num_crimes_day, d_predicted = todaycrime_d, d_diffcrimes = todaycrime_d - num_crimes_day)
-  } else {
+    }} else {
     print("missing data")
   }
 
@@ -701,101 +716,101 @@ if(d_t$estimate > 0){
 d_subt <- paste("Mean error is: ",round(d_t$estimate,3), d_error_sign, sep="")
 
 # Basic jitter box plot
-d_err_plot <- ggplot(d_error, aes(x = "", y = d_diffcrimes)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(data=d_over_predict, col="red") +
-  geom_jitter(data=d_under_predict, col="blue") +
-  geom_jitter(data=d_well_predict, col="black") +
-  #coord_flip() +
-  theme_light() +
-  theme(
-    legend.position = "none",
-    panel.border = element_blank(),
-  )
-
-# add titles
-d_err_plot <- d_err_plot +
-  labs(
-    title = "Errors of Decomposition Model Estimates",
-    subtitle = d_error_sign,
-    y = "Predicted minus Actual",
-    x = ""
-  )
-
-# make theme prettier
-d_err_plot <- d_err_plot + theme(
-  legend.position="none",  # remove legend because tooltips will suffice
-  panel.background = element_rect(fill = "white", colour = "white"),
-  panel.grid = element_line(colour = "grey92"),
-  panel.grid.minor = element_line(linewidth = rel(1)),
-  axis.text.x = element_text(size=16),
-  axis.text.y = element_text(size=16),
-  axis.title.y = element_text(size=17),
-  axis.title.x = element_text(size=17),
-  plot.title = element_text( # font size "large"
-    size = 20,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  ),
-  plot.subtitle = element_text( # font size "regular"
-    size = 15,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  )
-)
-
-# show the figure
-d_err_plot
-
-###### as example only, below ###########
-# for plotting line plot
-
-d_err_lineplot <- ggplot(d_error, aes(x = date, y = d_diffcrimes)) +
-  geom_line() +
-  geom_point(data=d_over_predict, aes(x = date, y = d_diffcrimes), col="red") +
-  geom_point(data=d_under_predict, aes(x = date, y = d_diffcrimes), col="blue") +
-  geom_point(data=d_well_predict, aes(x = date, y = d_diffcrimes), col="black") +
-  geom_hline(yintercept = 0) +
-  #coord_flip() +
-  theme_light() +
-  theme(
-    legend.position = "none",
-    panel.border = element_blank(),
-  )
-
-# add titles
-d_err_lineplot <- d_err_lineplot +
-  labs(
-    title = "Errors of Decomposition Model Estimates",
-    subtitle = "Error per date",
-    y = "Predicted minus Actual",
-    x = "Date"
-  )
-
-# make theme prettier
-d_err_lineplot <- d_err_lineplot + theme(
-  legend.position="none",  # remove legend because tooltips will suffice
-  panel.background = element_rect(fill = "white", colour = "white"),
-  panel.grid = element_line(colour = "grey92"),
-  panel.grid.minor = element_line(linewidth = rel(1)),
-  axis.text.x = element_text(size=16),
-  axis.text.y = element_text(size=16),
-  axis.title.y = element_text(size=17),
-  axis.title.x = element_text(size=17),
-  plot.title = element_text( # font size "large"
-    size = 20,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  ),
-  plot.subtitle = element_text( # font size "regular"
-    size = 15,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  )
-)
-
-# show the figure
-d_err_lineplot
+# d_err_plot <- ggplot(d_error, aes(x = "", y = d_diffcrimes)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   geom_jitter(data=d_over_predict, col="red") +
+#   geom_jitter(data=d_under_predict, col="blue") +
+#   geom_jitter(data=d_well_predict, col="black") +
+#   #coord_flip() +
+#   theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   )
+#
+# # add titles
+# d_err_plot <- d_err_plot +
+#   labs(
+#     title = "Errors of Decomposition Model Estimates",
+#     subtitle = d_error_sign,
+#     y = "Predicted minus Actual",
+#     x = ""
+#   )
+#
+# # make theme prettier
+# d_err_plot <- d_err_plot + theme(
+#   legend.position="none",  # remove legend because tooltips will suffice
+#   panel.background = element_rect(fill = "white", colour = "white"),
+#   panel.grid = element_line(colour = "grey92"),
+#   panel.grid.minor = element_line(linewidth = rel(1)),
+#   axis.text.x = element_text(size=16),
+#   axis.text.y = element_text(size=16),
+#   axis.title.y = element_text(size=17),
+#   axis.title.x = element_text(size=17),
+#   plot.title = element_text( # font size "large"
+#     size = 20,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   ),
+#   plot.subtitle = element_text( # font size "regular"
+#     size = 15,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   )
+# )
+#
+# # show the figure
+# d_err_plot
+#
+# ###### as example only, below ###########
+# # for plotting line plot
+#
+# d_err_lineplot <- ggplot(d_error, aes(x = date, y = d_diffcrimes)) +
+#   geom_line() +
+#   geom_point(data=d_over_predict, aes(x = date, y = d_diffcrimes), col="red") +
+#   geom_point(data=d_under_predict, aes(x = date, y = d_diffcrimes), col="blue") +
+#   geom_point(data=d_well_predict, aes(x = date, y = d_diffcrimes), col="black") +
+#   geom_hline(yintercept = 0) +
+#   #coord_flip() +
+#   theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   )
+#
+# # add titles
+# d_err_lineplot <- d_err_lineplot +
+#   labs(
+#     title = "Errors of Decomposition Model Estimates",
+#     subtitle = "Error per date",
+#     y = "Predicted minus Actual",
+#     x = "Date"
+#   )
+#
+# # make theme prettier
+# d_err_lineplot <- d_err_lineplot + theme(
+#   legend.position="none",  # remove legend because tooltips will suffice
+#   panel.background = element_rect(fill = "white", colour = "white"),
+#   panel.grid = element_line(colour = "grey92"),
+#   panel.grid.minor = element_line(linewidth = rel(1)),
+#   axis.text.x = element_text(size=16),
+#   axis.text.y = element_text(size=16),
+#   axis.title.y = element_text(size=17),
+#   axis.title.x = element_text(size=17),
+#   plot.title = element_text( # font size "large"
+#     size = 20,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   ),
+#   plot.subtitle = element_text( # font size "regular"
+#     size = 15,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   )
+# )
+#
+# # show the figure
+# d_err_lineplot
 
 ############################################
 # Put all errors together for box plot groups
@@ -821,60 +836,60 @@ all_errors_longer <- all_errors |>
 
 saveRDS(all_errors_longer, file = "all_errors_longer.RDS")
 
-allthree_plot <- ggplot(all_errors_longer, aes(x=model, y=value)) +
-  geom_boxplot()+
-  theme_light() +
-  theme(
-    legend.position = "none",
-    panel.border = element_blank(),
-  )
-
-allthree_plot <- allthree_plot +
-  scale_x_discrete(drop=FALSE, na.translate = FALSE,
-                   breaks = c(
-                     "lin_diffcrimes",
-                     "d_diffcrimes",
-                     "ets_diffcrimes"
-                   ),
-                   labels = c(
-                     "Linear",
-                     "Decomposition",
-                     "ETS"
-                   )
-  )
-
-# add titles
-allthree_plot <- allthree_plot +
-  labs(
-    title = "Errors of Model Estimates",
-    y = "Predicted minus Actual",
-    x = "Models"
-  )
-
-# make theme prettier
-allthree_plot <- allthree_plot + theme(
-  legend.position="none",  # remove legend because tooltips will suffice
-  panel.background = element_rect(fill = "white", colour = "white"),
-  panel.grid = element_line(colour = "grey92"),
-  panel.grid.minor = element_line(linewidth = rel(1)),
-  axis.text.x = element_text(size=16),
-  axis.text.y = element_text(size=16),
-  axis.title.y = element_text(size=17),
-  axis.title.x = element_text(size=17),
-  plot.title = element_text( # font size "large"
-    size = 20,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  ),
-  plot.subtitle = element_text( # font size "regular"
-    size = 15,
-    hjust = 0, vjust = 1,
-    margin = margin(b = 15/2)
-  )
-)
-
-# show the figure
-allthree_plot
+# allthree_plot <- ggplot(all_errors_longer, aes(x=model, y=value)) +
+#   geom_boxplot()+
+#   theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   )
+#
+# allthree_plot <- allthree_plot +
+#   scale_x_discrete(drop=FALSE, na.translate = FALSE,
+#                    breaks = c(
+#                      "lin_diffcrimes",
+#                      "d_diffcrimes",
+#                      "ets_diffcrimes"
+#                    ),
+#                    labels = c(
+#                      "Linear",
+#                      "Decomposition",
+#                      "ETS"
+#                    )
+#   )
+#
+# # add titles
+# allthree_plot <- allthree_plot +
+#   labs(
+#     title = "Errors of Model Estimates",
+#     y = "Predicted minus Actual",
+#     x = "Models"
+#   )
+#
+# # make theme prettier
+# allthree_plot <- allthree_plot + theme(
+#   legend.position="none",  # remove legend because tooltips will suffice
+#   panel.background = element_rect(fill = "white", colour = "white"),
+#   panel.grid = element_line(colour = "grey92"),
+#   panel.grid.minor = element_line(linewidth = rel(1)),
+#   axis.text.x = element_text(size=16),
+#   axis.text.y = element_text(size=16),
+#   axis.title.y = element_text(size=17),
+#   axis.title.x = element_text(size=17),
+#   plot.title = element_text( # font size "large"
+#     size = 20,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   ),
+#   plot.subtitle = element_text( # font size "regular"
+#     size = 15,
+#     hjust = 0, vjust = 1,
+#     margin = margin(b = 15/2)
+#   )
+# )
+#
+# # show the figure
+# allthree_plot
 
 # #### linear line plot ####
 #

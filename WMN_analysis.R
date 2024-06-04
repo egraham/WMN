@@ -67,7 +67,7 @@ ui <- fluidPage(
   navbarPage(title = "Exploring the Data: Who's Making News",
              inverse = TRUE,
 
-             tabPanel("The Last 7 days",
+             tabPanel("Seven days",
                       fluidRow(
                         column(4,
                                wellPanel(
@@ -80,13 +80,8 @@ ui <- fluidPage(
                                                     choiceValues =list("include_notlistedbubble")
                                  )
                                ),
-                                 # wellPanel(style = wellpanel_style,
-                                 #           h4(HTML("Here you will find some methods of data exploration for the 'Who's Making News' data set, from the amazing work done by Kristen Browde.")),
-                                 #           #h4(HTML("Direct link to the Shinyapps hosting site: <a href='https://erksome.shinyapps.io/WMN_Analysis/', target='_blank'>erksome.shinyapps.io/WMN_Analysis</a>")),
-                                 #
-                                 # ),
-                               wellPanel(style = wellpanel_style, h5(HTML("The motivation for this page is to create some interactive data exploration methods and alternative visualizations.  It also includes some simple supervised and unsupervised machine learning models. I thought it would be fun to also combine the data with other online sources.<br /><br />More thorough analyses of these data can be found elsewhere (for example, per capita analysis here: DataViz.fyi).<br /><br />I also clean up the data for some of these analyses, rather than leaving it completelly 'as-is' (please see the code source). Because this page is based on constantly updating data, and the source is maintained externally (formatting changes!), updates to this analysis are not automatic, but are done manually every few days.<br /><br />Thus, the totals reported on some tabs may not be exactly the same as reported on the WMN website.<br /><br />All code used here and additional data files (see individual tabs) are available here: <a href='https://github.com/egraham/WMN', target='_blank'>github.com/egraham/WMN</a>"))),
-                               wellPanel(style = wellpanel_style, h5(HTML("Check out my other Shiny data project: <a href='https://erksome.shinyapps.io/Fourier_and_Soil_Temps/', target='_blank'>Using Fourier Transform to Model Soil Temperatures</a>.<br /><br />Or, drop me a line: 'egraham.cens' at gmail!")))
+                               wellPanel(style = wellpanel_style, h4(HTML("The motivation for these sets of pages was to create some interactive data exploration methods and alternative visualizations for the WMN data set. These pages also includes some simple supervised and unsupervised machine learning models. <b>(please see the tabs at the top of the page)</b><br /><br />More standard analyses of these data can be found elsewhere (for example, per capita analysis here: DataViz.fyi).<br /><br />I have cleaned up the data for some of these analyses, rather than leaving them completely 'as-is' (please see the code source, link below). Because this page is based on constantly updated data, entered by hand, and the source is maintained externally, formatting and other weird changes changes have occurred that break automated processes; updates to this analysis are not automatic (not ideal, but it keeps the page from crashing).<br /><br />Thus, the totals reported on some tabs may not be exactly the same as reported on the WMN website.<br /><br />All code used here and additional data files (see individual tabs) are available here: <a href='https://github.com/egraham/WMN', target='_blank'>github.com/egraham/WMN</a>"))),
+                               wellPanel(style = wellpanel_style, h4(HTML("Check out my other Shiny data project using some fancy engineering to examine some physical phenomena in ecology: <a href='https://erksome.shinyapps.io/Fourier_and_Soil_Temps/', target='_blank'>Using Fourier Transform to Model Soil Temperatures</a>.<br /><br />Or, drop me a line: 'egraham.cens' at gmail!")))
                                ),
                                column(8,
                                       plotOutput(
@@ -102,16 +97,16 @@ ui <- fluidPage(
                                       div(style = "position:relative",
                                           uiOutput("bubbleplot_info", style = "pointer-events: none")
                                       ),
-                                      h5(style = detail_style_text, HTML("Above is a basic circle packing plot (a circle version of a treemap), with the size of the circle depending on the number of crimes and colors are based on larger groups (see the 'Groups of People' tab).")
+                                      h5(style = detail_style_text, HTML("Above is a basic circle packing plot (a circle version of a treemap), with the size of the circle depending on the number of crimes and color schemes based on larger groups (see the 'Groups of People' tab).")
                                       ),
-                                      h5(style = detail_style_text, HTML("Hover your mouse over the bubbles for more info, found in the 'Relation' category of the data set. <u>Note</u>: not all entries haved information stored in 'Relation' and they are presented 'as-is', with some minor filtering (removed values that are or have numbers that tend to be confusing).")
+                                      h5(style = detail_style_text, HTML("Hover your mouse over the bubbles for more info, found in the 'Relation' category of the data set. <u>Note</u>: These categories are a random sample of ten entries from the completed data set.")
                                       )
                                )
                         )
                       ),
 
                       ################################################
-                      tabPanel("Predicting Today",
+                      tabPanel("Predicting Crime",
                                fluidRow(
                                  column(4,
                                         wellPanel(
@@ -123,10 +118,10 @@ ui <- fluidPage(
                                                        selected = "linearmodel", inline = FALSE),
                                         ),
                                         wellPanel(style = wellpanel_style,
-                                                  h4("Predicting trends or when the next crime will occur is always strange (betting on human behavior), but we can use some simple tools to guess at how things are going."),
+                                                  h4(HTML("Predicting trends or when the next crime will occur is always strange (human behavior!), but we can use some simple tools to make some estimates, just for 'fun' and to see how these simple methods are better or worse than each other.<br /><br />Which is easiest to understand or to explain vs. the best predictor?")),
 
                                         ),
-                                        wellPanel(style = wellpanel_style,h5(HTML("Below are standard boxplots (median is the line, box extends to inter-quartile range, outliers as points) of the cumulative errors associated with the three models used to predict upcoming crime rates (since July 15, 2023, when sampling changed)."))),
+                                        wellPanel(style = wellpanel_style,h5(HTML("Below are standard boxplots (median is the line, box extends to inter-quartile range, outliers as points) of the cumulative errors associated with the three models used to predict upcoming crime rates (calculated only since July 15, 2023, when sampling changed).<br /><br />Interestingly, it looks like the linear model is better at predicting than the Decomposition model, although the ETS model beats them both."))),
                                         plotOutput(outputId = "allthree", height = "250px", width = "auto")
                                  ),
                                  column(8,
@@ -155,7 +150,7 @@ ui <- fluidPage(
                                                          plotOutput(
                                                            outputId = "ets", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Above, predicted crimes using ETS (exponential smoothing) time series forecast modeling, with black lines as the last month's data and red is the future prediction. Here, ETS computes a weighted average over the last 30 days of observations. (no hover data on this plot)<br /><br />Below, the errors of the ETS prediction, per day (hover for actual and predicted values).")),
+                                                         h5(style = detail_style_text, HTML("Above, the actual and predicted crimes using ETS (exponential smoothing) time series forecast modeling, with black lines as the last month's data and red is the 'future' prediction. Here, ETS computes a weighted average (medians, actually) over the last 90 days of observations (but skipping this month - see note about data collection problems).  This model has some advantages over the time series decomposition and if this is interesting to you, you should check out this paper: http://www.exponentialsmoothing.net (no hover data on this plot)<br /><br />Below, the errors of the ETS prediction, per day (hover for actual and predicted values).")),
                                                          plotOutput(outputId = "etserrorplot",
                                                                     width = "90%",
                                                                     height = 500,
@@ -176,7 +171,7 @@ ui <- fluidPage(
                                                          plotOutput(
                                                            outputId = "decomp", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Above, predicted crimes using time series decomposition, with a black line as the day of the week data and red is the prediction for today. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used. (no hover data on this plot)<br /><br />Below, the errors of the decomposition prediction, per day (hover for actual and predicted values).")),
+                                                         h5(style = detail_style_text, HTML("Above, predicted crimes using time series decomposition for a week of data, with a black line as the model for the day-of-the-week crime rate and the red point is the prediction for today. Please take a look at the 'About that line' page for a quick-and-dirty explanation of time series decomposition. The 'Seasonal' component after decomposition and the mean 'Trend' values for the last month were used to predict the crime rate on a daily basis over a week. (no hover data on this plot)<br /><br />Below, the errors of the decomposition prediction, per day (hover for actual and predicted values).")),
                                                          plotOutput(outputId = "derrorplot",
                                                                     width = "90%",
                                                                     height = 500,
@@ -209,9 +204,7 @@ ui <- fluidPage(
                                                        selected = "rawdata", inline = FALSE)
                                         ),
                                         wellPanel(style = wellpanel_style,
-                                                  h4("The data collected for 'Who's Making News' has some interesting daily and longer-term trends.")
-                                        ),
-                                        wellPanel(style = wellpanel_style, h5(HTML("There is an obvious cycle to the data, even as the maxiumum (and minimum) number of events per week has changed, with fewer crimes <b>reported</b> on Sundays.<br /><br />Are criminals taking the day off?"))
+                                                  h4(HTML("The data collected for 'Who's Making News' has some interesting daily and longer-term trends. The main 'signal' observed here is a weekly rise and fall, which is probably not reflective of actual crimes committed - or is it?<br /><br />Fewer crimes are <b>reported</b> on Sundays. Are criminals taking the day off?  Why should we think that sex crimes against children occurs uniformly, independent of day-of-week?<br /><br />Click on the 'Time series' radio button above to run a time series decomposition analysis on the data to expose any regular patterns. Then go back to the raw data - can you see the trends by eye?"))
                                         ),
                                  ),
                                  column(8,
@@ -239,13 +232,13 @@ ui <- fluidPage(
                                                              uiOutput("lineplot_info", style = "pointer-events: none")
                                                          ),
                                                          h5(style = detail_style_text, "Select a range by dragging your mouse, then double-click for a more detailed view and hover information.  Double-click without a selection to return to full-scale."),
-                                                         h5(style = detail_style_text, "Data have not been cleaned up, thus names displayed on hovering may not be 'real' names.")
+                                                         h5(style = detail_style_text, "Data have not been cleaned up, thus names displayed on hovering may not be the 'real' names associated with the crime.")
                                         ),
                                         conditionalPanel(condition="input.dataselecter == 'timeseries'",
                                                          plotOutput(
                                                            outputId = "timeseries", width = "90%", height = 500,
                                                          ),
-                                                         h5(style = detail_style_text, HTML("Data in the 'Observed' panel at the top are the raw data. Multiplicative Time Series Analysis pulls out the 'Seasonal' component, showing a highly regular periodicity to the data.  Analysis also shows the increased rate of crime (the 'Trend' row) where some sort of change in data collection occurred (a bigger web scrape?). As of 10-15, even more cases are being included (Indiana and Florida, among other states, were using variations on terminology not captured prevoiusly).<br /><br /> (no zooming in on this plot)"))
+                                                         h5(style = detail_style_text, HTML("Data in the 'Observed' panel at the top are the raw data, taken directly from the data set. This analysis, a Multiplicative Time Series Analysis, pulls out the 'Seasonal' component (middle plot), showing a highly regular periodicity to the data.  Analysis also shows the increased rate of crime (the bottom 'Trend' row) where some sort of change in data collection occurred (a bigger web scrape?). As we collect more data, larger seasonal or annual trends will begin to appear in the 'Seasonal' part as the model tries to explain the variability on longer-term time frames.<br /><br />It would be interesting to compare the 'Trend' data here with other variables, like national weather or employment rates or ...? You can see the last big drop in crime numbers was associated with a backlog of events, rather than any drop in crime.<br /><br /> (no zooming in on this plot)"))
                                         )
                                  )
                                )
@@ -262,7 +255,7 @@ ui <- fluidPage(
                                           )
                                         ),
                                         wellPanel(style = wellpanel_style,
-                                                  h4("This is the standard way to show off the groups data.")
+                                                  h4("This is the 'standard' way to show off numbers within the groups of data. Each larger group can be broken into sub-groups (hover over the columns).")
                                         ),
                                         wellPanel(style = wellpanel_style, h5("People who are trans are highlighted in the categories where they are included, not counted separately from their group."))
                                  ),
@@ -309,19 +302,19 @@ ui <- fluidPage(
                                                            p("Adjust the slider bar to be able to better visualize the names.")
                                                          ),
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Word clouds have an appeal that is hard to deny, although word clouds are not great for analytical accuracy.<br /><br />Data from 'https://genderize.io' are included."))
+                                                                   h4(HTML("Are there names that are more represented in this group of criminals than other names?  Probably not (although check out the Data table using the radio button above), but it's interesting to look at.<br /><br />Word clouds have an appeal that is hard to deny, although word clouds are not great for analytical accuracy.<br /><br />Data from 'https://genderize.io' are included."))
                                                          ),
-                                                         wellPanel(style = wellpanel_style, h5("Unfortunately Wordcloud2 will also not print names that 'don't fit' and so as you play with the slider, some of the most common names may dissappear, or the colors assigned to names will become un-synchronized with their gender."))
+                                                         wellPanel(style = wellpanel_style, h5("Unfortunately Wordcloud2 will also not print names that 'don't fit' and so as you play with the slider, some of the most common names may disappear, or the colors assigned to names will become un-synchronized with their gender."))
                                         ),
                                         conditionalPanel(condition="input.genderselecter == 'piegender'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Pie charts aren't much better than word clouds, but they can indicate some obvious trends.<br /><br />Data from 'https://genderize.io' are included."))
+                                                                   h4(HTML("Pie charts aren't much better than word clouds, but they can indicate some obvious trends. Here, the obvious trend is that males are problematic.<br /><br />Data from 'https://genderize.io' are included."))
                                                          )
                                         ),
 
                                         conditionalPanel(condition="input.genderselecter == 'data_table'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Sort by 'First Name' to see how common a name is in the WMN crime set (versus sort by how common the name is in the US - they are not the same! - data from 'https://genderize.io'.)<br /><br />... Or search for your own first name in the list!")
+                                                                   h4(HTML("Here we can get at the question of whether the number of crimes committed by a 'name' is proportional to the frequency of that name in the general population - are some names more or less associated with sex crimes against children?  If so, what could this possibly mean (other than needing a larger or unbiased sample size)?<br /><br />Sort by 'First Name' to see how common a name is in the WMN crime set versus sort by how common the name is in the US - they are not the same! (data from 'https://genderize.io'.)<br /><br />... Or, do you dare search for your own first name in the list!?")
                                                                    )
                                                          ),
                                                          h5(style = detail_style_text, HTML("<b>'Crimes'</b> indicates how many events were recorded under that name in the 'Who's Making News' data set.<br /><b>'Percent from WMN'</b> indicates percent of crimes under that name from the total for that gender.<br /><b>'US Proportion'</b> indicates the frequency that the name occurs in the Genderize database (assumed to be the current frequency in the US).")
@@ -336,9 +329,10 @@ ui <- fluidPage(
                                                          div(style = "position:relative",
                                                              uiOutput("hover_wordinfo", style = "pointer-events: none")),
                                                          p(" "),
-                                                         h5(style = detail_style_text, "Notes: I extraced the first names of the sex offenders from the WMN database, assuming one space between first and last name and that everyone has a first name (not true!).  These names are sent in batches to the 'https://genderize.io/' database server, where they are compared to a database of 'known' genders in the US and the probabilities of genders with each name is returned.  Obviously, there will be errors and names are not always exactly correlated with sex, gender, or expression of those concepts."),
+                                                         h5(style = detail_style_text, "Notes: I extracted the first names of the sex offenders from the WMN database, assuming one space between first and last name and that everyone has a first name (not true!).  These names are sent in batches to the 'https://genderize.io/' database server, where they are compared to a database of 'known' genders in the US and the probabilities of genders with each name is returned.  Obviously, there will be errors and names are not always exactly correlated with sex, gender, or expression of those concepts."),
                                                          p(" "),
-                                                         h5(style = detail_style_text, "Entries such as might occur for first names in the WMN database like 'FL Sting Pasco', '18 men', or 'unnamed parent' will return first names that will not return a reasonable result in the genderize.io database (and I remove those for this analysis). Actual names like 'La Luz' may also not result in usable data (but I do not specifically remove these types of names).  Thus, these data are a subset of the bigger Who's Making News data set and should be considered a random (??) sample."),
+                                                         h5(style = detail_style_text, "Entries such as might occur for first names in the WMN database like 'FL Sting Pasco', '18 men', or 'unnamed parent' will return first names that will not return a reasonable result in the genderize.io database (and I remove those for this analysis). Actual names like 'La Luz' may also not result in usable data (but I do not specifically remove these types of names).  Thus, these data are a subset of the bigger Who's Making News data set and should be considered a random (??) sample.")
+
                                         ),
                                         conditionalPanel(condition="input.genderselecter == 'piegender'",
                                                          plotOutput(
@@ -398,7 +392,7 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition = "input.states == 'by_crimes'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Crime data in this plot is expressed as a percentage of the difference between observed and expected crimes, relative to the expected and based on the population, thus, positive percentages indicate higher than expected crime rate percentage (e.g., +100% is twice the expected crimes).<br /><br />Selected data from 'www.kff.org' are included."))
+                                                                   h4(HTML("We can use a simple 'Chi Square' type of analysis to look at crime rates also, setting the expected crime rate on a total average crime for the US, then using population per state to make a prediction - is one state higher or lower than the US average based on population?<br /><br />Crime data in this plot is expressed as a percentage of the difference between observed and expected crimes, relative to the expected (US average), using the population of each state.  Thus, positive values indicate higher than expected crime rate percentage for a state (e.g., +100% is twice the US average crime rate for a state).<br /><br />Selected data from 'www.kff.org' are included."))
                                                          ),
                                                          wellPanel(style = wellpanel_style,
                                                                    h5(HTML("Note: many of these variables are not independent from each other and/or are strongly correlated!<br /><br />The data for the lollipop plot are also always sorted such that highest child sex crime rates are always nearest the left vertical axis, just for standardization."))
@@ -406,7 +400,7 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition = "input.states != 'by_crimes'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Examine the figures below to determine if assumptions have been violated. (for example, choose 'Political Party'), or see below for the Shapiro-Wilk normality test.<br /><br />Data from 'www.kff.org' included."))
+                                                                   h4(HTML("Examine the figures below to determine if assumptions have been violated (for example, choose 'Political Party'), or see below for the Shapiro-Wilk normality test.  Any data not normally distributed may or may not be significant, regardless of the linear regression.<br /><br />Data from 'www.kff.org' included."))
                                                          ),
                                                          h4(htmlOutput("shapiro"), style=detail_style_text),
                                                          plotOutput(height = "250px",
@@ -471,13 +465,13 @@ ui <- fluidPage(
                                         ),
                                         conditionalPanel(condition="input.cpselecter == 'pca'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("Principal Component Analysis is an 'unsupervised machine learning' method that shows what variables are responsible for the most variation in a multi-variable data set.<br /><br />Data from 'ucr.fbi.gov' and 'www.prisonpolicy.org' are included."))
+                                                                   h4(HTML("Principal Component Analysis is a fun data exploration technique, an 'unsupervised machine learning' method, that collapses lots data variables into a 2-D representation. Here, the plot shows what variables are responsible for the most variation in a multi-variable data set (based on the check boxes above).  Click on some boxes to see their effect. Also, see below and to the right for more info on PCA<br /><br />Data from 'ucr.fbi.gov' and 'www.prisonpolicy.org' are included."))
                                                          ),
-                                                         wellPanel(style = wellpanel_style, h5(HTML("Only the first two components are shown. When comparing the data to 'the Percent Difference from Expected Crime', the arrows (loadings) indicate how the selected data are related to 'Crime' arrow.<br /><br />An arrow in the same direction as the 'Crime' arrow indicates an increase in that variable is associated with an increase in crime.  An arrow perpendicular (or not well-represented in the component) indicates not much correlation.")))
+                                                         wellPanel(style = wellpanel_style, h5(HTML("Only the first two components are shown. When comparing the data to 'the Percent Difference from Expected Crime', the arrows (loadings) indicate how the variables are related to the 'Crime' arrow.<br /><br />An arrow in the same direction as the 'Crime' arrow indicates an increase in that variable is associated with an increase in crime.  An arrow perpendicular (or not well-represented in the component) indicates not much correlation.")))
                                         ),
                                         conditionalPanel(condition="input.cpselecter == 'kmeans'",
                                                          wellPanel(style = wellpanel_style,
-                                                                   h4(HTML("K-Means clustering is also an 'unsupervised machine learning' method (except you select how many clusters, so 'semi-supervised'?). It divides data into clusters that share similarities and that are dissimilar to the data in other clusters.<br /><br />Data from 'ucr.fbi.gov' and 'www.prisonpolicy.org' are included."))
+                                                                   h4(HTML("K-Means clustering is also an 'unsupervised machine learning' method (except you select how many clusters, so 'semi-supervised'?). It divides data into clusters that share similarities and that are dissimilar to the data in other clusters. Look at what variables are most represented in each cluster to get a feeling why these clusters were made, using the table to the right - what variables are most similar or most different between or within groups? Does this tell us anything about what might lead groups of states to have higher crime rates compared to other groups?<br /><br />Data from 'ucr.fbi.gov' and 'www.prisonpolicy.org' are included."))
                                                          ),
                                                          wellPanel(style = wellpanel_style, h5("To calculate the clusters, usually a PCA is performed first.  Then for every data point, the distance is measured from the selected number of 'centroids' (means) chosen.  Centroids are then moved and the process continues until the distances are optimized. K-means is sensitive to initial values and outliers, so examine the clusters carefully."))
                                         )
@@ -524,7 +518,7 @@ ui <- fluidPage(
 
 server <- shinyServer(function(input,output, session)({
 
-  ####### Some Functions #######
+  ####### Some Functions ######
 
   # Function to extract overall p-value of model
   sorted_p <- function(state.lm) {
@@ -665,13 +659,14 @@ server <- shinyServer(function(input,output, session)({
   dqueens <- dqueens |>
     group_by(Category, big_category) |>
     summarize(.groups = "keep", Category_n = n())
-  print(dqueens)
+  #print(dqueens)
 
   ######################## Last 7 days bubble plot ###############################
 
   # get the last 7 days of data (not necessarily from today)
   wmn_data_previous_week <- wmn_data_previous |>
-    filter(Date >= max(Date)-days(7)) |>
+    #filter(Date >= max(Date)-days(7)) |>
+    #group_by(dow = weekdays(Date)) |>
     mutate(
       category_color = case_when(
         Category == "Teachers/Aides" ~ "#7A4419",
@@ -712,7 +707,7 @@ server <- shinyServer(function(input,output, session)({
     )
 
   numcrimesweek <- max(row(wmn_data_previous_week))
-  numcrimesweektext <- paste(numcrimesweek, " new crimes added for a total of ", numcrimes, sep="")
+  numcrimesweektext <- paste("A total of ", numcrimes, sep="")
 
   # count numbers in small categories
   category_counts_bubble <- wmn_data_previous_week |>
@@ -744,40 +739,54 @@ server <- shinyServer(function(input,output, session)({
     group_by(big_category) |>
     mutate(big_category_n = n())
 
+  # turn into 7 day averages for Category_n and big_category_n
+  num_weeks <- as.numeric((max(wmn_data_previous$Date)-min(wmn_data_previous$Date))/7)
+  big_category_counts_bubble_w <- big_category_counts_bubble |>
+    mutate(Category_n = round(Category_n/num_weeks, 0)) |>
+    mutate(big_category_n = round(big_category_n/num_weeks,0)) |>
+    filter(Category_n > 0)
+
+
   # Make the plot
 
-  output$weekbubble <- renderPlot({
+    output$weekbubble <- renderPlot({
 
-    # if include the "not listed
+        showModal(modalDialog(
+          title = "Please note:",
+          "The WMN research project started in mid February 2023, and ran through May 23, 2024. Updates to the data set are still being processed, although new data collection has stopped."
+        ))
+
+
+# if include the "not listed
     if(length(str_subset(input$includebubble, "include_notlistedbubble")) > 0) {
-      big_category_counts_summary <- big_category_counts_bubble |>
+      big_category_counts_summary_w <- big_category_counts_bubble_w |>
         distinct(Category, .keep_all = TRUE)
       # reduce size of text in plot
       range_b <- c(3,6)
     } else {
-      big_category_counts_summary <- big_category_counts_bubble |>
+      big_category_counts_summary_w <- big_category_counts_bubble_w |>
         distinct(Category, .keep_all = TRUE)
-      big_category_counts_summary <- big_category_counts_summary |>
+      big_category_counts_summary_w <- big_category_counts_summary_w |>
         filter(Category != "Not Listed")
       range_b <- c(4,7)
     }
 
     # Create data, group by big categories, sort by size and alpha (in case of size ties)
-    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"),
-                           value=big_category_counts_summary$Category_n,
-                           category_color=big_category_counts_summary$category_color,
-                           text_color=big_category_counts_summary$text_color,
-                           hovertextinfo=big_category_counts_summary$Category) |>
-      arrange(desc(big_category_counts_summary$Category_n), big_category_counts_summary$Category)
+    weekdata <- data.frame(group=paste(big_category_counts_summary_w$Category_n, big_category_counts_summary_w$Category,sep="\n"),
+                           value=big_category_counts_summary_w$Category_n,
+                           category_color=big_category_counts_summary_w$category_color,
+                           text_color=big_category_counts_summary_w$text_color,
+                           hovertextinfo=big_category_counts_summary_w$Category) |>
+      arrange(desc(big_category_counts_summary_w$Category_n), big_category_counts_summary_w$Category)
 
-    # Generate the layout. This function return a dataframe with one line per bubble.
+    # Generate the layout. This function returns a dataframe with one line per bubble.
     # It gives its center (x and y) and its radius, proportional of the value
     packing <- circleProgressiveLayout(weekdata$value, sizetype='area')
 
     # We can add these packing information to the initial data frame
     weekdata_p <- cbind(weekdata, packing)
 
-    # Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportionnal to the value
+    # Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportional to the value
     # plot(data$radius, data$value)
 
     # The next step is to go from one center + a radius to the coordinates of a circle that
@@ -785,8 +794,6 @@ server <- shinyServer(function(input,output, session)({
     dat.gg <- circleLayoutVertices(packing, npoints=50) |>
       mutate(category_color = weekdata_p$category_color[id]) |>
       mutate(text_color = weekdata_p$text_color[id])
-
-
 
     # Make the plot
     bubbleplot <- ggplot() +
@@ -799,7 +806,7 @@ server <- shinyServer(function(input,output, session)({
 
       # Add text in the center of each bubble + control its size
       geom_text(data = weekdata_p, aes(x, y, size=value, label = group), color="black") + #, color=weekdata_p$text_color
-      geom_text(data = weekdata_p, aes(x, y, size=value + 0.07, label = group), color="black") +
+      #geom_text(data = weekdata_p, aes(x, y, size=value + 0.07, label = group), color="black") +
       scale_size_continuous(range = range_b) +
       coord_equal()
 
@@ -812,7 +819,7 @@ server <- shinyServer(function(input,output, session)({
     # add titles
     bubbleplot <- bubbleplot +
       labs(
-        title = "The last 7 days, Sex crimes against children",
+        title = "A typical 7 days for sex crimes against children",
         subtitle = numcrimesweektext,
       )
 
@@ -840,23 +847,24 @@ server <- shinyServer(function(input,output, session)({
 
   output$bubbleplot_info <- renderUI({
 
+
     if(length(str_subset(input$includebubble, "include_notlisted")) > 0) {
-      big_category_counts_summary <- big_category_counts_bubble |>
+      big_category_counts_summary_w <- big_category_counts_bubble_w |>
         distinct(Category, .keep_all = TRUE)
     } else {
-      big_category_counts_summary <- big_category_counts_bubble |>
-        distinct(Category, .keep_all = TRUE)
-      big_category_counts_summary <- big_category_counts_summary |>
+      big_category_counts_summary_w <- big_category_counts_bubble_w |>
+        distinct(Category, .keep_all = TRUE) |>
+      #big_category_counts_summary <- big_category_counts_summary |>
         filter(Category != "Not Listed")
     }
 
     # Create data, group by big categories, sort by size and alpha (in case of size ties)
-    weekdata <- data.frame(group=paste(big_category_counts_summary$Category_n, big_category_counts_summary$Category,sep="\n"),
-                           value=big_category_counts_summary$Category_n,
-                           category_color=big_category_counts_summary$category_color,
-                           text_color=big_category_counts_summary$text_color,
-                           hovertextinfo=big_category_counts_summary$Category) |>
-      arrange(desc(big_category_counts_summary$Category_n), big_category_counts_summary$Category)
+    weekdata <- data.frame(group=paste(big_category_counts_summary_w$Category_n, big_category_counts_summary_w$Category,sep="\n"),
+                           value=big_category_counts_summary_w$Category_n,
+                           category_color=big_category_counts_summary_w$category_color,
+                           text_color=big_category_counts_summary_w$text_color,
+                           hovertextinfo=big_category_counts_summary_w$Category) |>
+      arrange(desc(big_category_counts_summary_w$Category_n), big_category_counts_summary_w$Category)
 
     # Generate the layout. This function return a dataframe with one line per bubble.
     # It gives its center (x and y) and its radius, proportional of the value
@@ -893,23 +901,27 @@ server <- shinyServer(function(input,output, session)({
           filter(Category == groupval) |>
           ungroup() |>
           select(Relation) |>
-          distinct()
+          distinct() |>
+          sample_n(size=10)
 
         # remove entries with numbers, gets weird.
         hovertext_bubble <- hovertext_bubble[!str_detect(hovertext_bubble$Relation, '[0-9]'),]
 
         hovertext_str <- NULL
         if(dim(hovertext_bubble)[1] == 1){
-          hovertextformatted <- paste("<b>People listed here only include:</b><br />&#9733; ", hovertext_bubble$Relation[1], sep="")
+          hovertextformatted <- paste("<b>People listed in ",groupval," only include:</b><br />&#9733; ", hovertext_bubble$Relation[1], sep="")
         } else if(dim(hovertext_bubble)[1] < 6) {
           for(i in seq(1, dim(hovertext_bubble)[1])){
+          #for(i in seq(1, 10)){
             hovertext_sub <- paste("&#9733; ",hovertext_bubble$Relation[i],"<br />", sep="")
             hovertext_str <- paste(hovertext_str, hovertext_sub, sep="")
           }
-          hovertextformatted <- paste("<b>People listed here included:</b>", hovertext_str, sep="<br />")
+          hovertextformatted <- paste("<b>People listed in ",groupval," included:</b>", hovertext_str, sep="<br />")
         } else if(dim(hovertext_bubble)[1] >= 6) {
           for(i in seq(1, dim(hovertext_bubble)[1], 2)){
+          #for(i in seq(1, 10, 2)){
             if(i + 1 > dim(hovertext_bubble)[1]){
+            #if(i + 1 > 10){
               hovertext_sub <- paste("&#9733; ",hovertext_bubble$Relation[i], sep="")
               hovertext_str <- paste(hovertext_str, hovertext_sub, sep="")
             } else {
@@ -922,7 +934,7 @@ server <- shinyServer(function(input,output, session)({
           }
           #hovertext_str <- hovertext_sub
           #hovertext_str <- str_replace_all(hovertext_str, ";","<br />* ")
-          hovertextformatted <- paste("<b>People listed here included:</b>", hovertext_str, sep="<br />")
+          hovertextformatted <- paste("<b>People listed in ",groupval," included:</b>", hovertext_str, sep="<br />")
         }
 
         crimes_on_date_text <- hovertextformatted
@@ -954,7 +966,8 @@ server <- shinyServer(function(input,output, session)({
   # get the last month's data, count, and make a linear regression
   sumduration = 30
   numEventsperday_reg <- eventsperday |>
-    filter(Date > max(Date) - duration(sumduration, 'days'))
+    filter(Date > ymd("2023-07-14"))
+    #filter(Date > max(Date) - duration(sumduration, 'days'))
 
   #textlabel <- "Linear model"
   cumsum30.lm = lm(cum_sum ~ Date, data=numEventsperday_reg)
@@ -964,8 +977,8 @@ server <- shinyServer(function(input,output, session)({
   # slope, intercept
   cumsum_m <- cumsum30.lm$coefficients[2]
   cumsum_b <- cumsum30.lm$coefficients[1]
-  cumsumlineartext <- "Above, predicted crimes based on linear regression use the last 30 days of data and the current date. The dark red dotted line represents the regression, with"
-  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), " (no hover data on this plot)", sep='')
+  cumsumlineartext <- "Above, predicted crimes based on linear regression since July 14th, 2023, when sampling appeared to change. The dark red dotted line represents the regression, with"
+  cumsumlineartext <- paste(cumsumlineartext, " slope = ", round(cumsum_m,2), " crimes per day, and r<sup>2</sup> = ", round(cumsum_ar,4), " (no hover data on this plot).<br /><br />Interestingly, it seems that the crime rate has held steady for a lengthy time period - is there just a 'background' rate of crimes against children that occurs?  It would take multiple years to determine if the 'wobble' in the line is due to seasonal effects on crime rates, but that would be interesting!", sep='')
   cumsumlineartext <- paste(cumsumlineartext, "<br /><br />Below, the errors of the linear prediction, per day (hover for actual and predicted values).")
 
   nextcrimetext <- paste("Number of crimes predicted for ",strftime(now(), "%A, %B %d, %Y")," is: ",round(cumsum_m, 0), sep="")
@@ -988,11 +1001,16 @@ server <- shinyServer(function(input,output, session)({
     filter(value == 0)
 
   ############
-  # ETS model - last month of data
+  # ETS model - last 3 month of data
   ###########
+  # eventsperday_m <- eventsperday |>
+  #   filter(Date >= now()-days(90)) |>
+  #   filter(Date < date(now())-days(30)) |>  # remove today because we're predicting today
+  #   select(date=Date, value=perday) |>
+  #   as_tsibble(index=date)
   eventsperday_m <- eventsperday |>
-    filter(Date >= now()-days(30)) |>
-    filter(Date < date(now())) |>  # remove today because we're predicting today
+    filter(Date >= mdy("7/15/2023")) |>
+    #filter(Date < date(now())-days(30)) |>  # remove today because we're predicting today
     select(date=Date, value=perday) |>
     as_tsibble(index=date)
 
@@ -1002,20 +1020,34 @@ server <- shinyServer(function(input,output, session)({
       ets = ETS(value)
     )
 
-  # use model to forecast 10 days into future, including today
+  # use model to forecast X days into future, based on today's date and last date of sample (5/23/2024)
+  #futuredays <- time_length(difftime(as.Date(now()), mdy("5/23/2024")), "days")
+  # choose only the last two weeks
   fc <- fit |>
-    forecast(h = 10)
+    forecast(h = 7) #|>
+    #tail(14)
 
-  futuredata <- tibble(date=fc$date, crimes=fc$.mean)
-  todaycrime <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$crimes
-  todaydate <- futuredata[futuredata$date == strftime(now(), "%Y-%m-%d"),]$date
-  # no more data past 10 days into future
-  if(length(todaycrime) == 0){
-    todaycrime <- futuredata[futuredata$date == max(futuredata$date),]$crimes
-    todaydate <- futuredata[futuredata$date == max(futuredata$date),]$date
-  }
+  # eventsperday_m <- eventsperday |>
+  #   filter(Date >= now()-days(30)) |>
+  #   filter(Date < date(now())) |>  # remove today because we're predicting today
+  #   select(date=Date, value=perday) |>
+  #   as_tsibble(index=date)
+  # eventsperday_m <- eventsperday |>
+  #   filter(Date >= mdy("5/23/2024")-days(60)) |>
+  #   filter(Date <= date(mdy("5/23/2024"))) |>  # last day of data
+  #   select(date=Date, value=perday) |>
+  #   as_tsibble(index=date)
 
-  nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
+  futuredata <- tibble(date=fc$date, crimes=fc$.mean, wd=wday(fc$date))
+  todaycrime <- futuredata[futuredata$wd == wday(now()),]$crimes
+  todaydate <- futuredata[futuredata$wd == wday(now()),]$wd
+  # # no more data past 10 days into future
+  # if(length(todaycrime) == 0){
+  #   todaycrime <- futuredata[futuredata$date == max(futuredata$date),]$crimes
+  #   todaydate <- futuredata[futuredata$date == max(futuredata$date),]$date
+  # }
+
+  nextcrimetext_m <- paste("\nNumber of crimes predicted for ", strftime(now(), "%A, %B %d, %Y"), " is: ", round(todaycrime, 0), sep="")
 
   # get errors for line plot
   ets_error <- all_errors_longer |>
@@ -1032,8 +1064,10 @@ server <- shinyServer(function(input,output, session)({
   ##############
   # decomp model
   ##############
+  # eventsperday_d <- eventsperday |>
+  #   filter(Date >= mdy("5/23/2024")-(days(30) + (8 - wday(mdy("5/23/2024"))))) # last 30 days + some for next filter
   eventsperday_d <- eventsperday |>
-    filter(Date >= now()-(days(30) + (8 - wday(now())))) # last 30 days + some for next filter
+    filter(Date >= mdy("7/14/2023")) # last 30 days + some for next filter
 
   # start the time series on Sunday so we don't have to calculate what day the model spits out
   # day of the week, starting on Sunday, day 7
@@ -1068,7 +1102,7 @@ server <- shinyServer(function(input,output, session)({
   decomp_df_today <- decomp_df |>
     filter(date==wday(now()))
 
-  nextcrimetext_d <- paste("\nNumber of crimes predicted for ", strftime(todaydate, "%A, %B %d, %Y"), " is: ", round(todaycrime_d, 0), sep="")
+  nextcrimetext_d <- paste("\nNumber of crimes predicted for ", strftime(now(), "%A, %B %d, %Y"), " is: ", round(todaycrime_d, 0), sep="")
 
   # get errors for line plot
   d_error <- all_errors_longer |>
@@ -1264,7 +1298,7 @@ server <- shinyServer(function(input,output, session)({
 
       wellPanel(
         style = style,
-        p(HTML(linearerror_text))
+        p(HTML(linearerror_text[1]))
       )
     }
 
@@ -1275,10 +1309,44 @@ server <- shinyServer(function(input,output, session)({
 
   output$ets <- renderPlot({
 
-    forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) +
+    # forecastplot <- ggplot(eventsperday_m, aes(x=date, y=value)) +
+    #   geom_line() +
+    #   geom_point() +
+    #   geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
+    #   geom_point(data = futuredata, aes(x=todaydate, y=todaycrime), col="red", shape = "diamond", size=5) +
+    #   theme_light() +
+    #   theme(
+    #     legend.position = "none",
+    #     panel.border = element_blank(),
+    #   ) +
+    #   ylim(0, NA)
+
+
+    # decompplot <- ggplot(decomp_df, aes(x=date, y=value)) +
+    #   geom_line() +
+    #   geom_point(data = decomp_df_today, aes(x=date, y=value), col="red", shape = "diamond", size=5) +
+    #   theme_light() +
+    #   theme(
+    #     legend.position = "none",
+    #     panel.border = element_blank(),
+    #   ) +
+    #   ylim(0, NA)
+    #
+    # # add titles
+    # decompplot <- decompplot +
+    #   labs(
+    #     title = nextcrimetext_d,
+    #     subtitle = "Decomposition model",
+    #     x = "Day of week",
+    #     y = "Time series of sex crimes against children"
+    #   ) +
+    #   scale_x_continuous(breaks=seq(1:length(date_d)), labels=as.character(date_d))
+    #
+
+    forecastplot <- ggplot(futuredata, aes(x=wd, y=crimes)) +
       geom_line() +
-      geom_point() +
-      geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
+      # geom_point() +
+      # geom_line(data = futuredata, aes(x=date, y=crimes), col="red") +
       geom_point(data = futuredata, aes(x=todaydate, y=todaycrime), col="red", shape = "diamond", size=5) +
       theme_light() +
       theme(
@@ -1292,9 +1360,10 @@ server <- shinyServer(function(input,output, session)({
       labs(
         title = nextcrimetext_m,
         subtitle = "ETS model",
-        x = "Date",
+        x = "Day of week",
         y = "Sex crimes against children"
-      )
+      ) +
+      scale_x_continuous(breaks=seq(1:length(date_d)), labels=as.character(date_d))
 
     # make theme prettier
     forecastplot <- forecastplot + theme(
@@ -1414,7 +1483,7 @@ server <- shinyServer(function(input,output, session)({
 
       wellPanel(
         style = style,
-        p(HTML(etserror_text))
+        p(HTML(etserror_text[1]))
       )
     }
 
@@ -1440,7 +1509,7 @@ server <- shinyServer(function(input,output, session)({
       labs(
         title = nextcrimetext_d,
         subtitle = "Decomposition model",
-        x = "Date",
+        x = "Day of week",
         y = "Time series of sex crimes against children"
       ) +
       scale_x_continuous(breaks=seq(1:length(date_d)), labels=as.character(date_d))
@@ -1562,7 +1631,7 @@ server <- shinyServer(function(input,output, session)({
 
       wellPanel(
         style = style,
-        p(HTML(derror_text))
+        p(HTML(derror_text[1]))
       )
     }
 
@@ -1783,12 +1852,13 @@ server <- shinyServer(function(input,output, session)({
 
     dat <- dat |>
       mutate(date = eventsperday$Date[startindex:length(eventsperday$Date)]) |>
-      select(c(date, Observed, Trend, Seasonal))
+      select(c(date, Observed, Trend, Seasonal)) |>
+      na.omit()
 
     timeseriesplot <- ggplot(gather(dat, component, value, -date), aes(date, value), scale = continuous) +
       facet_grid(component ~ ., scales="free_y") +
       geom_line() +
-      scale_x_continuous() +
+      #scale_x_continuous() +
       scale_y_continuous()
 
     # add titles
@@ -1857,8 +1927,8 @@ server <- shinyServer(function(input,output, session)({
       } else {
         percenttext = "% of total"
       }
-      ggplot2::annotate("text", x = trans_group$barrank + 0.75, y = trans_group$csum+20,
-                        label = paste(trans_group$trans_n, " people who are trans\n", round(trans_group$trans_n / count * 100, digits=1), percenttext, sep=""),
+      ggplot2::annotate("text", x = trans_group$barrank[1] + 0.75, y = trans_group$csum[1]+20,
+                        label = paste(trans_group$trans_n, " people who are trans\n", round(trans_group$trans_n / count * 100, digits=3), percenttext, sep=""),
                         size = 6, hjust = 0, vjust = 0)
     }
 
@@ -1872,7 +1942,8 @@ server <- shinyServer(function(input,output, session)({
         wmn_barplot <- wmn_barplot + add_trans_rectangle(trans_groups[i,])
       }
       trans_group_flat <- trans_groups |>
-        filter(barrank == max(trans_groups$barrank))
+        #filter(barrank == max(trans_groups$barrank))
+        filter(barrank == max(barrank))
       trans_group_flat$trans_n = sum(trans_groups$trans_n)
 
       if(!boolean_include_notlisted){
@@ -1888,7 +1959,7 @@ server <- shinyServer(function(input,output, session)({
       if(dim(dqueens)[1] == 0){
         wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = "Not a single Drag Queen.", size = 7, vjust=1, hjust=1)
       } else {
-        wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = "Possible Drag Queen in List", size = 7, vjust=1, hjust=1)
+        wmn_barplot <- wmn_barplot + ggplot2::annotate("text", x=Inf, y = Inf, label = paste(dim(dqueens)[1], " Drag Queen(s) in List\n",round(dim(dqueens)[1]/numcrimes*100,3), "% of named total", sep=""), size = 7, vjust=1, hjust=1)
       }
 
     }
@@ -2132,7 +2203,7 @@ server <- shinyServer(function(input,output, session)({
 
   # Get all possible combinations of gendered names from checkboxes
   # total_count <- NA
-  # numtables <- 1
+  # numtables <- 0
 
   # checkboxvalues <- NULL
   observeEvent(input$gender, {
@@ -2157,6 +2228,7 @@ server <- shinyServer(function(input,output, session)({
     } else if(length(str_subset(input$gender, "gender_atypical")) > 0){
       numtables <- 1
     } else {
+
       # nothing selected
     }
 
@@ -2199,7 +2271,9 @@ server <- shinyServer(function(input,output, session)({
         formatPercentage(c('Proportion', 'Global_prop'), 2)
     })
 
+
   })
+
 
   output$wordcloud <- renderWordcloud2({
 
@@ -2236,7 +2310,7 @@ server <- shinyServer(function(input,output, session)({
     }
 
     # sort by descending because wordcloud2 will skip names that dont fit at the end of the list
-    if(!is.null(dim(total_count))){
+    if(!is.null(dim(total_count)) & dim(total_count)[1] > 1){
       total_count <- total_count |>
         arrange(desc(n)) |>
         select(c('First_name','n','Proportion','gender'))
@@ -2274,7 +2348,7 @@ server <- shinyServer(function(input,output, session)({
 
     # pie chart with labels outside
     ggplot(piedata, aes(x = "", y = value, fill = fct_inorder(Names))) +
-      geom_bar(linewidth = 1, size = 1, color = "white", stat = "identity") + # lines between
+      geom_bar(linewidth = 1, color = "white", stat = "identity") + # lines between
       coord_polar(theta = "y") +
       guides(fill = guide_legend(title = "Names")) +
       scale_y_continuous(breaks = piedata$pos, labels = paste(round(piedata$value,digits=1),"%",sep="")) +
@@ -2408,7 +2482,7 @@ server <- shinyServer(function(input,output, session)({
     } else if(inputStates == "by_crimes"){
       sortcol <- "crime_percent_from_expected"
       sortlabel <- "Crimes Against Children"
-      sortcaption1 <- "A regression line through the state data vs. crimes will indicate a sigificant effect of the state statistics on the occurrance of those crimes (or not).  The p-value will be reported on the figure above."
+      sortcaption1 <- "A regression line through the state data vs. crimes will indicate a significant effect of the state statistics on the occurrence of those crimes (or not).  The p-value will be reported on the figure above."
       sortcaption2 <- "The test statistic is (coefficient of slope / standard error of slope) with n-2 degrees of freedom and assumes the error in the linear regression is independent of x, data are normally distributed, etc."
     } else if(inputStates == "alpha"){
       sortcol <- "state_index"
@@ -3126,7 +3200,7 @@ server <- shinyServer(function(input,output, session)({
       NULL
     } else {
       output$kmeanstext1 <- renderText({
-        HTML("Examine the table below. It shows the mean values for each variable.  Look across the rows (clusters) to get a feeling for what each cluster 'represents' and how each cluser is different or the same as the others.")
+        HTML("Examine the table below. It shows the mean values for each variable.  Look across the rows (clusters) to get a feeling for what each cluster 'represents' and how each cluster is different or the same as the others.")
       })
 
       k2 <- kmeans(subsetdata_noexp, centers = kmeansnumber)
@@ -3136,7 +3210,7 @@ server <- shinyServer(function(input,output, session)({
         mutate(Cluster = k2$cluster) |>
         group_by(Cluster) |>
         summarise_all("mean") |>
-        mutate(across(where(is.numeric), round, digits = 1))
+        mutate(across(where(is.numeric), \(x) round(x, digits = 1)))
 
       # adjust loading labels
       crimechoiceNames <- betterNames(subsetdata_noexp)
